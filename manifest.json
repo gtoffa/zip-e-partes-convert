@@ -1,0 +1,35 @@
+{
+  "name": "Zip e-partes convert",
+  "version": "1.0",
+  "manifest_version": 3,
+  "description": "Convertidor de e-partes comprimidas en zip",
+  "icons": {
+    "128": "assets/img/icon128.png"
+  },
+  "background": {
+    "service_worker": "service_worker.js"
+  },
+  "default_locale": "en",
+  "optional_permissions": [
+    "management"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "permissions": [
+    "tabs",
+    "downloads",
+    "downloads.open",
+    "downloads.shelf"
+  ],
+  "action": {
+    "default_icon": {
+      "19": "assets/img/icon19.png",
+      "38": "assets/img/icon38.png"
+    },
+    "default_title": "Zip e-partes convert",
+    "default_popup": "popup.html"
+  },
+   
+  "content_security_policy": {}
+}
