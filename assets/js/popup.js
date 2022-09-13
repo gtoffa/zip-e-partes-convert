@@ -1,12 +1,3 @@
-// Copyright (c) 2013 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-
-  chrome.runtime.sendMessage({ message: "seticon" }, function (response) {
-
-  });
-});
 
 function pointInElement(p, elem) {
   return ((p.x >= elem.offsetLeft) &&
@@ -369,8 +360,21 @@ DownloadItem.prototype.show = function () {
 
 DownloadItem.prototype.open = function () {
   if (this.state == 'complete') {
+    chrome.permissions.contains(
+      { origins: ["file://*"] },
+      function (granted) {
+        if (granted) {
+          convertpdf(this.filename, this.basename);
 
-    convertpdf(this.filename, this.basename);
+        } else {
+
+          document.getElementById('noperm').style.display = '';
+          document.getElementById('link').setAttribute('href', 'chrome://extensions/?id=' + chrome.runtime.id);
+       
+        }
+      }
+    );
+
 
 
 
@@ -679,20 +683,11 @@ if (chrome.downloads) {
 
 
   };
-} else {
-  // The downloads API is not available.
-  // TODO(benjhayden) Remove this when minimum_chrome_version is set.
-  window.onload = function () {
-    loadI18nMessages();
-    var bad_version = document.getElementById('bad-chrome-version');
-    bad_version.hidden = false;
-    bad_version.onclick = function () {
-      chrome.tabs.create({ url: bad_version.href });
-      return false;
-    };
-    document.getElementById('empty').style.display = 'none';
-    document.getElementById('q').style.display = 'none';
-  };
 }
 
+window.load = function () {
+  chrome.runtime.sendMessage({ message: "seticon" }, function (response) {
+  });
 
+
+};
