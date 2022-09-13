@@ -2,6 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+chrome.runtime.onMessage.addListener( // this is the message listener
+  function (request, sender, sendResponse) {
+    if (request.message === "seticon")
+      chrome.action.setIcon({ path: 'assets/img/icon19.png' })
+
+  }
+);
+
 
 chrome.downloads.onChanged.addListener(function (delta) {
 
@@ -14,14 +22,20 @@ chrome.downloads.onChanged.addListener(function (delta) {
 
 
       var path = "assets/img/";
-      if (delta.state) {
 
-        if (delta.state.current == 'in_progress') {
+      if (items[0].state) {
+
+        if (items[0].state == 'in_progress') {
 
           path += "inprogress.png";
 
-        } else if (delta.state.current == 'complete') {
-          path += "listo.png";
+        } else if (items[0].state == 'complete') {
+          if (items[0].exists) {
+            path += "listo.png";
+
+          } else {
+            path += "icon19.png";
+          }
         } else {
           path += "icon19.png";
         }
@@ -31,7 +45,7 @@ chrome.downloads.onChanged.addListener(function (delta) {
 
 
       } else {
-        path += "inprogress.png";
+        path += "icon19.png";
       }
 
       chrome.action.setIcon({ path: path })

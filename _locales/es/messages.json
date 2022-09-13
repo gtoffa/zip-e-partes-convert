@@ -1,106 +1,106 @@
 {
   "extName": {
-    "message": "Download Manager Button",
-    "description": "Extension name"
+    "message": "Botón Administrador de descargas",
+    "description": "NOMBRE DE EXTENSION"
   },
   "extDesc": {
-    "message": "Browser Action Download Manager User Interface for Google Chrome",
-    "description": "Extension description"
+    "message": "INTERFAZ DE USUARIO DEL ADMINISTRADOR DE DESCARGAS DE ACCIONES DEL NAVEGADOR PARA GOOGLE CHROME",
+    "description": "DESCRIPCIÓN DE LA EXTENSION "
   },
   "badChromeVersion": {
-    "message": "The downloads API is only available on the canary, dev, and beta channels.",
+    "message": "LA API DE DESCARGAS SOLO ESTA DISPONIBLE EN LOS CANALES CANARY, DEV Y BETA.",
     "description": ""
   },
   "tabTitle": {
-    "message": "Downloads",
-    "description": "tab title"
+    "message": "DESCARGAS",
+    "description": "TITULO DE LA PESTAÑA"
   },
   "searchPlaceholder": {
-    "message": "Search Downloads",
+    "message": "BUSCAR DESCARGAS",
     "description": ""
   },
   "clearAllTitle": {
-    "message": "Erase All Visible Downloads",
+    "message": "BORRAR TODAS LAS DESCARGAS VISIBLES",
     "description": ""
   },
   "openDownloadsFolderTitle": {
-    "message": "Open Downloads Folder",
+    "message": "ABRIR CARPETAS DE DESCARGAS",
     "description": ""
   },
   "zeroItems": {
-    "message": "There are zero download items.",
+    "message": "HAY 0 ELEMENTOS DE DESCARGAS",
     "description": ""
   },
   "searching": {
-    "message": "Teleporting lots of goats...",
+    "message": "BUSCNADO...",
     "description": ""
   },
   "zeroSearchResults": {
-    "message": "Zero matches",
+    "message": ".0 COINCIDENCIAS",
     "description": ""
   },
   "managementPermissionInfo": {
-    "message": "Some files were downloaded by an extension.",
+    "message": "ALGUNOS ARCHIVOS FUERON DESCARGADOS POR UNA EXTENSIÓN",
     "description": ""
   },
   "grantManagementPermission": {
-    "message": "Show links to extensions that download files.",
+    "message": "MOSTRAR ENLACES A EXTENSIONES QUE DESCARGAN ARCHIVOS",
     "description": ""
   },
   "showOlderDownloads": {
-    "message": "Show Older Downloads",
+    "message": "MOSTRAR DESCARGAS ANTERIORES",
     "description": ""
   },
   "loadingOlderDownloads": {
-    "message": "Loading Older Downloads...",
+    "message": "CARGANDO DESCARGAS ANTIGUAS...",
     "description": ""
   },
   "openTitle": {
-    "message": "Open",
+    "message": "Abierto",
     "description": ""
   },
   "pauseTitle": {
-    "message": "Pause",
+    "message": "PAUSA",
     "description": ""
   },
   "resumeTitle": {
-    "message": "Resume",
+    "message": "ResumeN",
     "description": ""
   },
   "cancelTitle": {
-    "message": "Cancel",
+    "message": "CANCELAR",
     "description": ""
   },
   "removeFileTitle": {
-    "message": "Remove file",
+    "message": "REMOVER ARCHIVO",
     "description": ""
   },
   "eraseTitle": {
-    "message": "Erase",
+    "message": "BORRAR",
     "description": ""
   },
   "retryTitle": {
-    "message": "Retry",
+    "message": "REVER",
     "description": ""
   },
   "referrerTitle": {
-    "message": "Referrer",
+    "message": "REFERENTE",
     "description": ""
   },
   "month0abbr": {
-    "message": "Jan",
+    "message": "en",
     "description": ""
   },
   "month1abbr": {
-    "message": "Feb",
+    "message": "feb",
     "description": ""
   },
   "month2abbr": {
-    "message": "Mar",
+    "message": "mar",
     "description": ""
   },
   "month3abbr": {
-    "message": "Apr",
+    "message": "abr",
     "description": ""
   },
   "month4abbr": {
@@ -116,7 +116,7 @@
     "description": ""
   },
   "month7abbr": {
-    "message": "Aug",
+    "message": "Ago",
     "description": ""
   },
   "month8abbr": {
@@ -132,19 +132,19 @@
     "description": ""
   },
   "month11abbr": {
-    "message": "Dec",
+    "message": "Dic",
     "description": ""
   },
   "openWhenCompleteFinishing": {
-    "message": "Opening in just a moment",
+    "message": "Abierto hace un momento",
     "description": ""
   },
   "timeLeftFinishing": {
-    "message": "finishing...",
+    "message": "Terminando...",
     "description": ""
   },
   "openWhenCompleteDays": {
-    "message": "Opening in $days$d $hours$h",
+    "message": "Abrir en $hours$h",
     "description": "",
     "placeholders": {
       "days": {
@@ -158,7 +158,7 @@
     }
   },
   "timeLeftDays": {
-    "message": "$days$d $hours$h left",
+    "message": "Restante $days$d $hours$h",
     "description": "",
     "placeholders": {
       "days": {
@@ -172,7 +172,7 @@
     }
   },
   "openWhenCompleteHours": {
-    "message": "Opening in $hours$h $mins$m",
+    "message": "Abrir en $hours$h $mins$m",
     "description": "",
     "placeholders": {
       "hours": {
@@ -186,7 +186,7 @@
     }
   },
   "timeLeftHours": {
-    "message": "$hours$h $mins$m left",
+    "message": "$hours$h $mins$m restantes",
     "description": "",
     "placeholders": {
       "hours": {
@@ -200,7 +200,7 @@
     }
   },
   "openWhenCompleteMinutes": {
-    "message": "Opening in $mins$m $sec$s",
+    "message": "Abrir en $mins$m $sec$s",
     "description": "",
     "placeholders": {
       "mins": {
@@ -214,7 +214,7 @@
     }
   },
   "timeLeftMinutes": {
-    "message": "$mins$m $sec$s left",
+    "message": "$mins$m $sec$s IZQUIERDA",
     "description": "",
     "placeholders": {
       "mins": {
@@ -228,7 +228,7 @@
     }
   },
   "openWhenCompleteSeconds": {
-    "message": "Opening in $sec$s",
+    "message": "Abrir en $sec$s",
     "description": "",
     "placeholders": {
       "sec": {
@@ -238,7 +238,7 @@
     }
   },
   "timeLeftSeconds": {
-    "message": "$sec$s left",
+    "message": "$sec$s IZQUIERDA",
     "description": "",
     "placeholders": {
       "sec": {
@@ -248,179 +248,179 @@
     }
   },
   "error_FILE_FAILED": {
-    "message": "File Failed",
+    "message": "ARCHIVO FALLIDO",
     "description": ""
   },
   "error_FILE_ACCESS_DENIED": {
-    "message": "File-System Access Denied",
+    "message": "ACCESO AL SISTEMA DE ARCHIVOS DENEGADO ",
     "description": ""
   },
   "error_FILE_NO_SPACE": {
-    "message": "No Space On Disk",
+    "message": "SIN ESPACIO EN DISCO",
     "description": ""
   },
   "error_FILE_NAME_TOO_LONG": {
-    "message": "Filename Too Long",
+    "message": "NOMBRE DE ARCHIVO DEMASIADO LARGO",
     "description": ""
   },
   "error_FILE_TOO_LARGE": {
-    "message": "File Too Large",
+    "message": "ARCHIVO DEMASIADO GRANDE",
     "description": ""
   },
   "error_FILE_VIRUS_INFECTED": {
-    "message": "Virus Infected",
+    "message": "VIRUS INFECTADO",
     "description": ""
   },
   "error_FILE_TRANSIENT_ERROR": {
-    "message": "Transient File-System Error",
+    "message": "ERROR TRANSITORIO DEL SISTEMA DE ARCHIVOS",
     "description": ""
   },
   "error_FILE_BLOCKED": {
-    "message": "File Blocked",
+    "message": "ARCHIVO BLOQUEADO",
     "description": ""
   },
   "error_FILE_SECURITY_CHECK_FAILED": {
-    "message": "Security Check Failed",
+    "message": "CONTROL DE SEGURIDAD FALLIDO",
     "description": ""
   },
   "error_FILE_TOO_SHORT": {
-    "message": "File Too Short",
+    "message": "ARCHIVO DEMASIADO CORTO",
     "description": ""
   },
   "error_NETWORK_FAILED": {
-    "message": "Network Failure",
+    "message": "FALLA DE RED",
     "description": ""
   },
   "error_NETWORK_TIMEOUT": {
-    "message": "Network Timeout",
+    "message": "TIEMPO DE LA ESPERA DE LA RED ",
     "description": ""
   },
   "error_NETWORK_DISCONNECTED": {
-    "message": "Network Disconnected",
+    "message": "RED DESCONECTADA",
     "description": ""
   },
   "error_NETWORK_SERVER_DOWN": {
-    "message": "Server Down",
+    "message": "SERVIDOR CAIDO",
     "description": ""
   },
   "error_SERVER_FAILED": {
-    "message": "Server Failure",
+    "message": "FALLA DEL SERVIDOR",
     "description": ""
   },
   "error_SERVER_NO_RANGE": {
-    "message": "Server No Range",
+    "message": "SERVIDOR SIN RANGO",
     "description": ""
   },
   "error_SERVER_PRECONDITION": {
-    "message": "Server Precondition Failure",
+    "message": "FALLA DE CONDICIÓN PREVIA DEL SERVIDOR",
     "description": ""
   },
   "error_SERVER_BAD_CONTENT": {
-    "message": "Bad Content",
+    "message": "FALLO EL CONTENIDO",
     "description": ""
   },
   "error_USER_CANCELED": {
-    "message": "Cancelled",
+    "message": "CANCELADA",
     "description": ""
   },
   "error_USER_SHUTDOWN": {
-    "message": "Cancelled",
+    "message": "CANCELADA",
     "description": ""
   },
   "error_CRASH": {
-    "message": "Crash",
+    "message": "CHOQUE",
     "description": ""
   },
   "error_1": {
-    "message": "File Failed",
+    "message": "ARCHIVO FALLIDO",
     "description": ""
   },
   "error_2": {
-    "message": "File-System Access Denied",
+    "message": "ACCESO AL SISTEMA DE ARCHIVOS DENEGADO",
     "description": ""
   },
   "error_3": {
-    "message": "No Space On Disk",
+    "message": "SIN ESPACIO EN DISCO",
     "description": ""
   },
   "error_5": {
-    "message": "Filename Too Long",
+    "message": "NOMBRE DE ARCHIVO DEMASIADO LARGO ",
     "description": ""
   },
   "error_6": {
-    "message": "File Too Large",
+    "message": "NOMBRE DE ARCHIVO DEMASIADO GRANDE",
     "description": ""
   },
   "error_7": {
-    "message": "Virus Infected",
+    "message": "Virus Infectado",
     "description": ""
   },
   "error_10": {
-    "message": "Transient File-System Error",
+    "message": "ERROR TRANSITORIO DEL SISTEMA DE ARCHIVOS",
     "description": ""
   },
   "error_11": {
-    "message": "File Blocked",
+    "message": "ARCHIVO BLOQUEADO",
     "description": ""
   },
   "error_12": {
-    "message": "Security Check Failed",
+    "message": "CONTROL DE SEGURIDAD FALLIDO",
     "description": ""
   },
   "error_13": {
-    "message": "File Too Short",
+    "message": "ARCHIVO DEMASIADO CORTO",
     "description": ""
   },
   "error_20": {
-    "message": "Network Failure",
+    "message": "FALLA DE RED",
     "description": ""
   },
   "error_21": {
-    "message": "Network Timeout",
+    "message": "TIEMPO DE ESPERA DE LA RED ",
     "description": ""
   },
   "error_22": {
-    "message": "Network Disconnected",
+    "message": "RED DESCONECTADA ",
     "description": ""
   },
   "error_23": {
-    "message": "Server Down",
+    "message": "SERVIDOR CAIDO",
     "description": ""
   },
   "error_30": {
-    "message": "Server Failure",
+    "message": "FALLA DEL SERVIDOR",
     "description": ""
   },
   "error_31": {
-    "message": "Server No Range",
+    "message": "SERVIDOR SIN RANGO",
     "description": ""
   },
   "error_32": {
-    "message": "Server Precondition Failure",
+    "message": "FALLA DE CONDICIÓN PREVIA DEL SERVIDOR",
     "description": ""
   },
   "error_33": {
-    "message": "Bad Content",
+    "message": "ERROR DECONTENIDO",
     "description": ""
   },
   "error_40": {
-    "message": "Cancelled",
+    "message": "CANCELADA",
     "description": ""
   },
   "error_41": {
-    "message": "Cancelled",
+    "message": "CANCELADA",
     "description": ""
   },
   "error_50": {
-    "message": "Crash",
+    "message": "ERROR",
     "description": ""
   },
   "errorRemoved": {
-    "message": "Removed",
+    "message": "ELIMINADO",
     "description": ""
   },
   "showInFolderTitle": {
-    "message": "Show in Folder",
-    "description": "Alt text for show in folder icon"
+    "message": "MOSTRAR EN LA CARPETA",
+    "description": "TEXTO ALTERNATIVO PARA MOSTRAR EN EL ICONO DE LA CARPETA"
   }
 }

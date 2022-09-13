@@ -10,17 +10,13 @@
     "service_worker": "service_worker.js"
   },
   "default_locale": "en",
-  "optional_permissions": [
-    "management"
-  ],
+  
   "host_permissions": [
-    "<all_urls>"
+    "file:///*/*"
   ],
   "permissions": [
     "tabs",
-    "downloads",
-    "downloads.open",
-    "downloads.shelf"
+    "downloads"
   ],
   "action": {
     "default_icon": {

@@ -1,11 +1,13 @@
 // Copyright (c) 2013 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-try {
-  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-    chrome.action.setIcon({ tabId: tab.id, path: 'assets/img/icon19.png' });
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+
+  chrome.runtime.sendMessage({ message: "seticon" }, function (response) {
+
   });
-} catch (e) { }
+});
+
 function pointInElement(p, elem) {
   return ((p.x >= elem.offsetLeft) &&
     (p.x <= (elem.offsetLeft + elem.offsetWidth)) &&
