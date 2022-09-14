@@ -367,7 +367,7 @@ DownloadItem.prototype.open = function () {
       function (granted) {
         if (granted) {
           convertpdf(itemd.filename, itemd.basename);
-          document.getElementById('noperm').style.display = 'none';
+
         } else {
 
           document.getElementById('noperm').style.display = '';
@@ -687,13 +687,9 @@ if (chrome.downloads) {
   };
 }
 
-try {
-
+window.load = function () {
   chrome.runtime.sendMessage({ message: "seticon" }, function (response) {
   });
-} catch (error) {
-
-}
 
 
-
+};

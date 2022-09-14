@@ -687,13 +687,9 @@ if (chrome.downloads) {
   };
 }
 
-try {
-
+window.load = function () {
   chrome.runtime.sendMessage({ message: "seticon" }, function (response) {
   });
-} catch (error) {
-
-}
 
 
-
+};

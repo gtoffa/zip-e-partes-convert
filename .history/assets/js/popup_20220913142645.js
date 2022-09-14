@@ -360,19 +360,17 @@ DownloadItem.prototype.show = function () {
 
 DownloadItem.prototype.open = function () {
   if (this.state == 'complete') {
-
-    let itemd = this;
     chrome.permissions.contains(
       { origins: ["file://*"] },
       function (granted) {
         if (granted) {
-          convertpdf(itemd.filename, itemd.basename);
-          document.getElementById('noperm').style.display = 'none';
+          convertpdf(this.filename, this.basename);
+
         } else {
 
           document.getElementById('noperm').style.display = '';
-
-
+          document.getElementById('link').setAttribute('href', 'chrome://extensions/?id=' + chrome.runtime.id);
+       
         }
       }
     );
@@ -687,13 +685,9 @@ if (chrome.downloads) {
   };
 }
 
-try {
-
+window.load = function () {
   chrome.runtime.sendMessage({ message: "seticon" }, function (response) {
   });
-} catch (error) {
-
-}
 
 
-
+};
