@@ -15,3 +15,7 @@ CÓMO USAR LA EXTENSIÓN DE ACROBAT PARA CHROME
 
 Desarrollado por el Departamento Sistema de Información del Instituto de Colonización
 de la provincia del Chaco
+
+
+Link de la extensión
+ https://chromewebstore.google.com/detail/zip-e-partes-convert/cncohcpkppafnjoajpdefgjamdlcfpoe
