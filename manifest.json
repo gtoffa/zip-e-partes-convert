@@ -10,12 +10,13 @@
     "service_worker": "service_worker.js"
   },
   "default_locale": "en",
-  
   "host_permissions": [
     "file:///*/*"
   ],
   "permissions": [
-    "downloads"
+    "downloads",
+    "storage",
+    "tabs"
   ],
   "action": {
     "default_icon": {
@@ -25,6 +26,5 @@
     "default_title": "Zip e-partes convert",
     "default_popup": "popup.html"
   },
-   
   "content_security_policy": {}
 }
