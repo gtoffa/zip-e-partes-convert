@@ -11,12 +11,38 @@
   },
   "default_locale": "en",
   "host_permissions": [
-    "file:///*/*"
+    "file:///*/*",
+    "https://app.chaco.gob.ar/*",
+    "https://gobiernodigital.chaco.gob.ar/*"
   ],
   "permissions": [
     "downloads",
     "storage",
-    "tabs"
+    "tabs",
+    "alarms",
+    "notifications"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://app.chaco.gob.ar/*"
+      ],
+      "js": [
+        "assets/js/content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/css/dark-mode.css",
+        "assets/img/logochico.png"
+      ],
+      "matches": [
+        "https://app.chaco.gob.ar/*"
+      ]
+    }
   ],
   "action": {
     "default_icon": {

@@ -24,7 +24,7 @@
   <link rel="icon" href="assets/img/icon19.png">
 </head>
 
-<body style="min-width: 590px; min-height: 250px;">
+<body style="min-width: 720px; min-height: 250px;">
 
 
 
@@ -42,13 +42,28 @@
         </a>
 
 
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" id="q" aria-label="Search" incremental>
 
-        </form>
-        <br />&nbsp;
 
       </nav>
+
+      <ul class="nav nav-tabs pl-3" id="main-tabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="tab-descargas-link" data-toggle="tab" href="#tab-descargas" role="tab">&#11015;
+            Descargas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="tab-contactos-link" data-toggle="tab" href="#tab-contactos" role="tab">&#128101;
+            Contactos WhatsApp</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="tab-favoritos-link" data-toggle="tab" href="#tab-favoritos" role="tab">&#11088;
+            Favoritos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="tab-config-link" data-toggle="tab" href="#tab-config" role="tab">&#9881;
+            Configuraci&oacute;n</a>
+        </li>
+      </ul>
 
 
 
@@ -61,14 +76,85 @@
 
 
     </div>
-    <div id="searching" hidden></div>
-    <div id="search-zero" hidden></div>
-    <div id="items"></div>
-    <a href="#" id="older" hidden></a>
-    <span id="loading-older" hidden></span>
-    <div id="request-management-permission" hidden>
-      <div id="management-permission-info"></div>
-      <a href="#" id="grant-management-permission"></a>
+    <div class="tab-content" id="main-tab-content">
+
+      <div class="tab-pane fade show active" id="tab-descargas" role="tabpanel">
+        <div class="px-3 pt-2 pb-1">
+          <input class="form-control form-control-sm" id="q" type="search" aria-label="Search" incremental>
+        </div>
+        <div id="searching" hidden></div>
+        <div id="search-zero" hidden></div>
+        <div id="items"></div>
+        <a href="#" id="older" hidden></a>
+        <span id="loading-older" hidden></span>
+        <div id="request-management-permission" hidden>
+          <div id="management-permission-info"></div>
+          <a href="#" id="grant-management-permission"></a>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="tab-contactos" role="tabpanel">
+        <div class="p-3">
+          <p class="text-muted mb-2" style="font-size:12px;">El nombre debe coincidir con c&oacute;mo aparece en el
+            sistema (puede ser parcial).</p>
+          <div class="input-group input-group-sm mb-3">
+            <input type="text" id="contact-name" class="form-control" placeholder="Nombre (como aparece en el sistema)">
+            <input type="tel" id="contact-phone" class="form-control" placeholder="Tel&eacute;fono (ej: 5493624123456)">
+            <div class="input-group-append">
+              <button type="button" id="btn-add-contact" class="btn btn-success">+ Agregar</button>
+            </div>
+          </div>
+          <div id="contact-list" style="max-height:200px;overflow-y:auto;"></div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="tab-favoritos" role="tabpanel">
+        <div class="p-3">
+          <p class="text-muted mb-2" style="font-size:12px;">Hac&eacute; clic en un favorito para buscarlo en el
+            sistema.</p>
+          <div id="favorites-list" style="max-height:260px;overflow-y:auto;"></div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="tab-config" role="tabpanel">
+        <div class="p-3">
+          <h6 class="mb-3" style="font-size:14px;font-weight:700;">&#9881; Configuraci&oacute;n</h6>
+
+          <div class="form-group d-flex align-items-center">
+            <label for="toggle-pendientes" class="mb-0 mr-3" style="font-size:13px;min-width:200px;">Notificar
+              tr&aacute;mites pendientes</label>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="toggle-pendientes">
+              <label class="custom-control-label" for="toggle-pendientes"></label>
+            </div>
+          </div>
+
+          <!-- Dark mode -->
+          <div class="form-group d-flex align-items-center">
+            <label for="toggle-darkmode" class="mb-0 mr-3" style="font-size:13px;min-width:200px;">Modo oscuro en el
+              sitio</label>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="toggle-darkmode">
+              <label class="custom-control-label" for="toggle-darkmode"></label>
+            </div>
+          </div>
+
+          <!-- Exportar / Importar configuración -->
+          <hr class="my-3">
+          <p class="mb-2" style="font-size:12px;font-weight:600;color:#444;">Copia de seguridad de configuraci&oacute;n
+          </p>
+          <div class="d-flex align-items-center" style="gap:8px;">
+            <button type="button" id="btn-export-config" class="btn btn-sm btn-outline-primary">&#11015;
+              Exportar JSON</button>
+            <label for="input-import-config" class="btn btn-sm btn-outline-secondary mb-0">&#11014; Importar
+              JSON</label>
+            <input type="file" id="input-import-config" accept=".json" style="display:none;">
+            <span id="import-feedback" style="font-size:11px;color:green;display:none;">&#10003; Importado</span>
+          </div>
+          <small class="text-muted d-block mt-1">Se guardan contactos, favoritos y preferencias.</small>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -83,7 +169,8 @@
 
   <div class="item" hidden>
     <div class="alert alert-danger" style="display: none" id="noperm" role="alert">
-      No se permite cargar recursos locales: Por favor active el acceso a URL de archivo en la configuraci&oacuten de la apllicaci&oacuten
+      No se permite cargar recursos locales: Por favor active el acceso a URL de archivo en la configuraci&oacuten de la
+      apllicaci&oacuten
     </div>
     <div class="row">
       <div class="col-1">

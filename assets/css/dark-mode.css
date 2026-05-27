@@ -1,0 +1,368 @@
+/* ============================================================
+   Dark Mode — Zip e-partes convert
+   Selector raíz: body.dark-mode
+   ============================================================ */
+
+/* 1. FONDO GENERAL Y TEXTO BASE
+   ============================================================ */
+body.dark-mode,
+body.dark-mode .page-content,
+body.dark-mode .MasterFooterCellFixedVM {
+    background-color: #222c32;
+    color: #e0e0e0;
+}
+
+/* 2. SIDEBAR
+   ============================================================ */
+body.dark-mode .page-sidebar {
+    background-color: #1c2529;
+}
+
+body.dark-mode .page-sidebar .sidebar-menu A {
+    color: #c5c5c5;
+}
+
+body.dark-mode .page-sidebar .sidebar-menu A:hover {
+    color: #ffffff;
+    background-color: #2a5f6e;
+}
+
+body.dark-mode .page-sidebar .sidebar-menu .submenu {
+    background-color: #1a2226;
+}
+
+body.dark-mode .page-sidebar .sidebar-menu LI.active>A {
+    background-color: #2a5f6e;
+    color: #ffffff;
+}
+
+/* 3. NAVBAR / HEADER
+   ============================================================ */
+body.dark-mode .page-header,
+body.dark-mode .navbar,
+body.dark-mode .sidebar-header {
+    background-color: #1c2529;
+    color: #e0e0e0;
+}
+
+/* 4. TABLAS Y GRILLAS
+   ============================================================ */
+body.dark-mode .WorkWith>THEAD>TR,
+body.dark-mode .WorkWithSelection>THEAD>TR,
+body.dark-mode .WorkWithHeader {
+    background-color: #2a3740;
+    color: #a8d8ea;
+}
+
+body.dark-mode .WorkWith>TBODY>TR,
+body.dark-mode .WorkWithSelection>TBODY>TR,
+body.dark-mode .GridRow {
+    background-color: #222c32;
+    color: #d0d0d0;
+}
+
+body.dark-mode .WorkWith>TBODY>TR TD,
+body.dark-mode .WorkWithSelection>TBODY>TR TD,
+body.dark-mode .GridRow TD {
+    border-color: #364d57;
+}
+
+body.dark-mode .WorkWithRowHover {
+    background-color: #2f3f47 !important;
+}
+
+body.dark-mode .WorkWithRowSelected {
+    background-color: #2d4a54 !important;
+}
+
+/* 5. FORMULARIOS E INPUTS
+   ============================================================ */
+body.dark-mode .form-control,
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"],
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .chosen-container-single .chosen-single {
+    background-color: #2a3740;
+    color: #e0e0e0;
+    border: 1px solid #3d5c6a;
+}
+
+body.dark-mode .form-control::placeholder,
+body.dark-mode input[type="text"]::placeholder,
+body.dark-mode input[type="number"]::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #888;
+}
+
+/* 6. PANELES Y CARDS
+   ============================================================ */
+body.dark-mode .panel,
+body.dark-mode .panel-default,
+body.dark-mode .DVBootstrapResponsivePanel {
+    background-color: #2a3740;
+    border-color: #364d57;
+}
+
+body.dark-mode .panel-body {
+    background-color: #2a3740;
+    border-color: #364d57;
+}
+
+body.dark-mode .panel-heading {
+    background-color: #1c2529;
+    color: #a8d8ea;
+    border-color: #364d57;
+}
+
+/* 7. BOTONES
+   ============================================================ */
+body.dark-mode .btn-default,
+body.dark-mode .BtnCancel {
+    background-color: #2d4a54;
+    color: #e0e0e0;
+    border-color: #3d5c6a;
+}
+
+body.dark-mode .btn-default:hover,
+body.dark-mode .BtnCancel:hover {
+    background-color: #2a5f6e;
+    color: #ffffff;
+    border-color: #3d5c6a;
+}
+
+/* 8. BADGES Y ALERTAS
+   ============================================================ */
+body.dark-mode .alert-warning {
+    opacity: 0.9;
+}
+
+body.dark-mode .alert-info {
+    opacity: 0.9;
+}
+
+body.dark-mode .alert-danger {
+    opacity: 0.9;
+}
+
+body.dark-mode .alert-success {
+    opacity: 0.9;
+}
+
+/* 9. PAGINACIÓN
+   ============================================================ */
+body.dark-mode .pagination>li>a,
+body.dark-mode .pagination>li>span {
+    background-color: #2a3740;
+    color: #a8d8ea;
+    border-color: #364d57;
+}
+
+body.dark-mode .pagination>li>a:hover,
+body.dark-mode .pagination>li>span:hover,
+body.dark-mode .pagination>.active>a,
+body.dark-mode .pagination>.active>span {
+    background-color: #2a5f6e;
+    color: #ffffff;
+    border-color: #364d57;
+}
+
+/* 10. CHOSEN SELECT
+   ============================================================ */
+body.dark-mode .chosen-container-single .chosen-single {
+    background-color: #2a3740;
+    color: #e0e0e0;
+    border: 1px solid #3d5c6a;
+}
+
+body.dark-mode .chosen-container .chosen-drop {
+    background-color: #1c2529;
+    border: 1px solid #3d5c6a;
+}
+
+body.dark-mode .chosen-container .chosen-results li {
+    color: #e0e0e0;
+}
+
+body.dark-mode .chosen-container .chosen-results li.highlighted {
+    background-color: #3875d7;
+    color: #ffffff;
+}
+
+/* 11. FOOTER
+   ============================================================ */
+body.dark-mode .MasterPageFooter,
+body.dark-mode .FooterText {
+    background-color: #1c2529;
+    color: #888;
+}
+
+/* 12. SCROLLBARS (webkit)
+   ============================================================ */
+body.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background: #222c32;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: #3d5c6a;
+    border-radius: 4px;
+}
+
+/* 13. LINKS GENERALES
+   ============================================================ */
+body.dark-mode a {
+    color: #7ab4e8;
+}
+
+body.dark-mode a:hover {
+    color: #a8d8ea;
+}
+
+/* ============================================================
+   FIXES: zonas que permanecían blancas
+   ============================================================ */
+
+/* F1. FONDO PRINCIPAL: contenedores GeneXus y Bootstrap básicos
+   ============================================================ */
+body.dark-mode html,
+body.dark-mode .gx-center-target,
+body.dark-mode #gx-column-targets,
+body.dark-mode .gx-call-target,
+body.dark-mode .col-xs-12,
+body.dark-mode .row {
+    background-color: #222c32 !important;
+    color: #e0e0e0 !important;
+}
+
+/* F2. TABS DE NAVEGACIÓN (WWTabStrip + Bootstrap nav-tabs)
+   ============================================================ */
+body.dark-mode .WWTabStrip,
+body.dark-mode .WWTab,
+body.dark-mode .WWTabPage,
+body.dark-mode .WWTabPageSelected,
+body.dark-mode ul.nav-tabs>li>a,
+body.dark-mode ul.nav-tabs {
+    background-color: #1c2529 !important;
+    color: #a8d8ea !important;
+    border-color: #364d57 !important;
+}
+
+body.dark-mode ul.nav-tabs>li.active>a,
+body.dark-mode ul.nav-tabs>li.active>a:focus {
+    background-color: #2a5f6e !important;
+    color: #ffffff !important;
+    border-bottom-color: #2a5f6e !important;
+}
+
+/* F3. FILAS DE GRILLA (blanco entre filas)
+   ============================================================ */
+body.dark-mode .WorkWithSelection>TBODY>TR[data-gxrow],
+body.dark-mode .WorkWith>TBODY>TR,
+body.dark-mode .GridRow,
+body.dark-mode .GridLineEven,
+body.dark-mode .GridLineOdd,
+body.dark-mode tr,
+body.dark-mode td,
+body.dark-mode th {
+    background-color: #2a3740 !important;
+    color: #d0d0d0 !important;
+    border-color: #364d57 !important;
+}
+
+body.dark-mode .WorkWithSelection>TBODY>TR[data-gxrow]:nth-child(even) {
+    background-color: #1e2d34 !important;
+}
+
+/* F4. CONTENEDOR DE SECCIONES GeneXus
+   ============================================================ */
+body.dark-mode .Section,
+body.dark-mode .FormCell,
+body.dark-mode .ContentPlace,
+body.dark-mode .FormCellSimple,
+body.dark-mode .FormCellAdvanced,
+body.dark-mode .gx-usercontrol,
+body.dark-mode .MasterFooterCellFixedVM,
+body.dark-mode .CellTableContentMaster,
+body.dark-mode .ContentHolderCell,
+body.dark-mode .Group,
+body.dark-mode .Filtros,
+body.dark-mode .GroupFiltrosTitle,
+body.dark-mode .Group1,
+body.dark-mode .GroupTitle,
+body.dark-mode .GroupOL,
+body.dark-mode .FiltrosOL,
+body.dark-mode .GroupFiltrosTitleOL,
+body.dark-mode .Group1OL,
+body.dark-mode .GroupTitleOL,
+body.dark-mode .GroupPanelTotal {
+    background-color: #222c32 !important;
+    color: #e0e0e0 !important;
+}
+
+/* F5. ÁREA BLANCA DEBAJO DE BOTONES DE ACCIÓN
+   ============================================================ */
+body.dark-mode .gx-call-target.bottom,
+body.dark-mode .gx-call-target.right,
+body.dark-mode [class*="gxHTMLWrp"],
+body.dark-mode .gxwebcomponent {
+    background-color: #222c32 !important;
+}
+
+/* F6. LABELS Y TEXTO NEGRO
+   ============================================================ */
+body.dark-mode label,
+body.dark-mode .gx-label,
+body.dark-mode .control-label,
+body.dark-mode .Label,
+body.dark-mode .RequiredLabel,
+body.dark-mode .AttributeGrayLabel,
+body.dark-mode span:not(.menu-text):not(.badge) {
+    color: #d0d0d0 !important;
+}
+
+/* F7. CAMPOS READONLY
+   ============================================================ */
+body.dark-mode .form-control-static,
+body.dark-mode .ReadonlyAttribute,
+body.dark-mode .ReadonlyAttributeSmall,
+body.dark-mode [data-gx-readonly],
+body.dark-mode p.form-control-static {
+    color: #b0c4de !important;
+    background-color: transparent !important;
+}
+
+/* F8. DROPDOWN / SELECT NATIVO
+   ============================================================ */
+body.dark-mode select.form-control,
+body.dark-mode select {
+    background-color: #2a3740 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #3d5c6a !important;
+}
+
+body.dark-mode select option {
+    background-color: #1c2529 !important;
+    color: #e0e0e0 !important;
+}
+
+/* ============================================================
+   REGLA NUCLEAR — último recurso para zonas persistentes
+   ============================================================ */
+body.dark-mode div:not([class*="toast"]):not([class*="pnotify"]),
+body.dark-mode table,
+body.dark-mode tbody,
+body.dark-mode thead {
+    background-color: inherit !important;
+}
+
+body.dark-mode * {
+    border-color: #364d57 !important;
+}
+
+body.dark-mode *:not(a):not(.btn):not([class*="badge"]):not([class*="alert"]) {
+    color: inherit;
+}

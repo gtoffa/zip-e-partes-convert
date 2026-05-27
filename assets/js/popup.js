@@ -1,132 +1,161 @@
-
 function pointInElement(p, elem) {
-  return ((p.x >= elem.offsetLeft) &&
-    (p.x <= (elem.offsetLeft + elem.offsetWidth)) &&
-    (p.y >= elem.offsetTop) &&
-    (p.y <= (elem.offsetTop + elem.offsetHeight)));
-};
+  return (
+    p.x >= elem.offsetLeft &&
+    p.x <= elem.offsetLeft + elem.offsetWidth &&
+    p.y >= elem.offsetTop &&
+    p.y <= elem.offsetTop + elem.offsetHeight
+  );
+}
 
 function setLastOpened() {
-  localStorage.popupLastOpened = (new Date()).getTime();
-  chrome.runtime.sendMessage('poll');
-};
+  localStorage.popupLastOpened = new Date().getTime();
+  chrome.runtime.sendMessage("poll");
+}
 
 function loadI18nMessages() {
   function setProperty(selector, prop, msg) {
     document.querySelector(selector)[prop] = chrome.i18n.getMessage(msg);
   }
 
-  setProperty('title', 'innerText', 'tabTitle');
-  setProperty('#q', 'placeholder', 'searchPlaceholder');
+  setProperty("title", "innerText", "tabTitle");
+  setProperty("#q", "placeholder", "searchPlaceholder");
 
-  setProperty('#empty', 'innerText', 'zeroItems');
-  setProperty('#searching', 'innerText', 'searching');
-  setProperty('#search-zero', 'innerText', 'zeroSearchResults');
-  setProperty('#management-permission-info', 'innerText',
-    'managementPermissionInfo');
-  setProperty('#grant-management-permission', 'innerText',
-    'grantManagementPermission');
-  setProperty('#older', 'innerText', 'showOlderDownloads');
-  setProperty('#loading-older', 'innerText', 'loadingOlderDownloads');
-  setProperty('.pause', 'title', 'pauseTitle');
-  setProperty('.resume', 'title', 'resumeTitle');
-  setProperty('.cancel', 'title', 'cancelTitle');
+  setProperty("#empty", "innerText", "zeroItems");
+  setProperty("#searching", "innerText", "searching");
+  setProperty("#search-zero", "innerText", "zeroSearchResults");
+  setProperty(
+    "#management-permission-info",
+    "innerText",
+    "managementPermissionInfo",
+  );
+  setProperty(
+    "#grant-management-permission",
+    "innerText",
+    "grantManagementPermission",
+  );
+  setProperty("#older", "innerText", "showOlderDownloads");
+  setProperty("#loading-older", "innerText", "loadingOlderDownloads");
+  setProperty(".pause", "title", "pauseTitle");
+  setProperty(".resume", "title", "resumeTitle");
+  setProperty(".cancel", "title", "cancelTitle");
 
-  setProperty('.url', 'title', 'retryTitle');
+  setProperty(".url", "title", "retryTitle");
 
-  setProperty('.open-filename', 'title', 'openTitle');
-  setProperty('#bad-chrome-version', 'innerText', 'badChromeVersion');
-  setProperty('.remove-file', 'title', 'removeFileTitle');
+  setProperty(".open-filename", "title", "openTitle");
+  setProperty("#bad-chrome-version", "innerText", "badChromeVersion");
+  setProperty(".remove-file", "title", "removeFileTitle");
 
-  document.querySelector('.progress').style.minWidth =
-    getTextWidth(formatBytes(1024 * 1024 * 1023.9) + '/' +
-      formatBytes(1024 * 1024 * 1023.9)) + 'px';
+  document.querySelector(".progress").style.minWidth =
+    getTextWidth(
+      formatBytes(1024 * 1024 * 1023.9) +
+        "/" +
+        formatBytes(1024 * 1024 * 1023.9),
+    ) + "px";
 
   // This only covers {timeLeft,openWhenComplete}{Finishing,Days}. If
   // ...Hours/Minutes/Seconds could be longer for any locale, then this should
   // test them.
   var max_time_left_width = 0;
   for (var i = 0; i < 4; ++i) {
-    max_time_left_width = Math.max(max_time_left_width, getTextWidth(
-      formatTimeLeft(0 == (i % 2),
-        (i < 2) ? 0 : ((100 * 24) + 23) * 60 * 60 * 1000)));
+    max_time_left_width = Math.max(
+      max_time_left_width,
+      getTextWidth(
+        formatTimeLeft(
+          0 == i % 2,
+          i < 2 ? 0 : (100 * 24 + 23) * 60 * 60 * 1000,
+        ),
+      ),
+    );
   }
-  document.querySelector('body div.item span.time-left').style.minWidth =
-    max_time_left_width + 'px';
-};
+  document.querySelector("body div.item span.time-left").style.minWidth =
+    max_time_left_width + "px";
+}
 
 function getTextWidth(s) {
-  var probe = document.getElementById('text-width-probe');
+  var probe = document.getElementById("text-width-probe");
   probe.innerText = s;
   return probe.offsetWidth;
-};
+}
 
 function formatDateTime(date) {
   var now = new Date();
-  var zpad_mins = ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
+  var zpad_mins = ":" + (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
   if (date.getYear() != now.getYear()) {
-    return '' + (1900 + date.getYear());
-  } else if ((date.getMonth() != now.getMonth()) ||
-    (date.getDate() != now.getDate())) {
-    return date.getDate() + ' ' + chrome.i18n.getMessage(
-      'month' + date.getMonth() + 'abbr');
+    return "" + (1900 + date.getYear());
+  } else if (
+    date.getMonth() != now.getMonth() ||
+    date.getDate() != now.getDate()
+  ) {
+    return (
+      date.getDate() +
+      " " +
+      chrome.i18n.getMessage("month" + date.getMonth() + "abbr")
+    );
   } else if (date.getHours() == 12) {
-    return '12' + zpad_mins + 'pm';
+    return "12" + zpad_mins + "pm";
   } else if (date.getHours() > 12) {
-    return (date.getHours() - 12) + zpad_mins + 'pm';
+    return date.getHours() - 12 + zpad_mins + "pm";
   }
-  return date.getHours() + zpad_mins + 'am';
+  return date.getHours() + zpad_mins + "am";
 }
 
 function formatBytes(n) {
   if (n < 1024) {
-    return n + 'B';
+    return n + "B";
   }
-  var prefixes = 'KMGTPEZY';
+  var prefixes = "KMGTPEZY";
   var mul = 1024;
   for (var i = 0; i < prefixes.length; ++i) {
-    if (n < (1024 * mul)) {
-      return (parseInt(n / mul) + '.' + parseInt(10 * ((n / mul) % 1)) +
-        prefixes[i] + 'B');
+    if (n < 1024 * mul) {
+      return (
+        parseInt(n / mul) +
+        "." +
+        parseInt(10 * ((n / mul) % 1)) +
+        prefixes[i] +
+        "B"
+      );
     }
     mul *= 1024;
   }
-  return '!!!';
+  return "!!!";
 }
 
 function formatTimeLeft(openWhenComplete, ms) {
-  var prefix = openWhenComplete ? 'openWhenComplete' : 'timeLeft';
+  var prefix = openWhenComplete ? "openWhenComplete" : "timeLeft";
   if (ms < 1000) {
-    return chrome.i18n.getMessage(prefix + 'Finishing');
+    return chrome.i18n.getMessage(prefix + "Finishing");
   }
   var days = parseInt(ms / (24 * 60 * 60 * 1000));
   var hours = parseInt(ms / (60 * 60 * 1000)) % 24;
   if (days) {
-    return chrome.i18n.getMessage(prefix + 'Days', [days, hours]);
+    return chrome.i18n.getMessage(prefix + "Days", [days, hours]);
   }
   var minutes = parseInt(ms / (60 * 1000)) % 60;
   if (hours) {
-    return chrome.i18n.getMessage(prefix + 'Hours', [hours, minutes]);
+    return chrome.i18n.getMessage(prefix + "Hours", [hours, minutes]);
   }
   var seconds = parseInt(ms / 1000) % 60;
   if (minutes) {
-    return chrome.i18n.getMessage(prefix + 'Minutes', [minutes, seconds]);
+    return chrome.i18n.getMessage(prefix + "Minutes", [minutes, seconds]);
   }
-  return chrome.i18n.getMessage(prefix + 'Seconds', [seconds]);
+  return chrome.i18n.getMessage(prefix + "Seconds", [seconds]);
 }
 
 function ratchetWidth(w) {
   var current = parseInt(document.body.style.minWidth) || 0;
-  document.body.style.minWidth = Math.max(w, current) + 'px';
+  document.body.style.minWidth = Math.max(w, current) + "px";
 }
 
 function ratchetHeight(h) {
   var current = parseInt(document.body.style.minHeight) || 0;
-  document.body.style.minHeight = Math.max(h, current) + 'px';
+  document.body.style.minHeight = Math.max(h, current) + "px";
 }
 
 function binarySearch(array, target, cmp) {
-  var low = 0, high = array.length - 1, i, comparison;
+  var low = 0,
+    high = array.length - 1,
+    i,
+    comparison;
   while (low <= high) {
     i = (low + high) >> 1;
     comparison = cmp(target, array[i]);
@@ -139,14 +168,18 @@ function binarySearch(array, target, cmp) {
     }
   }
   return i;
-};
+}
 
 function arrayFrom(seq) {
   return Array.prototype.slice.apply(seq);
-};
+}
 
 function DownloadItem(data) {
-  if (data.url.includes('https://app.chaco.gob.ar/tramites/servlet/com.ecom.abajardeavariaspartes')) {
+  if (
+    data.url.includes(
+      "https://app.chaco.gob.ar/tramites/servlet/com.ecom.abajardeavariaspartes",
+    )
+  ) {
     var item = this;
     for (var prop in data) {
       item[prop] = data[prop];
@@ -156,26 +189,35 @@ function DownloadItem(data) {
       DownloadItem.canResumeHack = true;
     }
 
-
-    item.div = document.querySelector('body>div.item').cloneNode(true);
-    item.div.id = 'item' + item.id;
+    item.div = document.querySelector("body>div.item").cloneNode(true);
+    item.div.id = "item" + item.id;
     item.div.item = item;
 
-    var items_div = document.getElementById('items');
-    if ((items_div.childNodes.length == 0) ||
-      (item.startTime.getTime() < items_div.childNodes[
-        items_div.childNodes.length - 1].item.startTime.getTime())) {
+    var items_div = document.getElementById("items");
+    if (
+      items_div.childNodes.length == 0 ||
+      item.startTime.getTime() <
+        items_div.childNodes[
+          items_div.childNodes.length - 1
+        ].item.startTime.getTime()
+    ) {
       items_div.appendChild(item.div);
-    } else if (item.startTime.getTime() >
-      items_div.childNodes[0].item.startTime.getTime()) {
+    } else if (
+      item.startTime.getTime() >
+      items_div.childNodes[0].item.startTime.getTime()
+    ) {
       items_div.insertBefore(item.div, items_div.childNodes[0]);
     } else {
-      var adjacent_div = items_div.childNodes[
-        binarySearch(arrayFrom(items_div.childNodes),
-          item.startTime.getTime(),
-          function (target, other) {
-            return target - other.item.startTime.getTime();
-          })];
+      var adjacent_div =
+        items_div.childNodes[
+          binarySearch(
+            arrayFrom(items_div.childNodes),
+            item.startTime.getTime(),
+            function (target, other) {
+              return target - other.item.startTime.getTime();
+            },
+          )
+        ];
       var adjacent_item = adjacent_div.item;
       if (adjacent_item.startTime.getTime() < item.startTime.getTime()) {
         items_div.insertBefore(item.div, adjacent_div);
@@ -184,59 +226,56 @@ function DownloadItem(data) {
       }
     }
 
-
-
-    item.getElement('open-filename').onclick = function () {
+    item.getElement("open-filename").onclick = function () {
       item.open();
       return false;
     };
-    item.getElement('pause').onclick = function () {
+    item.getElement("pause").onclick = function () {
       item.pause();
       return false;
     };
-    item.getElement('cancel').onclick = function () {
+    item.getElement("cancel").onclick = function () {
       item.cancel();
       return false;
     };
-    item.getElement('resume').onclick = function () {
+    item.getElement("resume").onclick = function () {
       item.resume();
       return false;
     };
 
-    item.getElement('remove-file').onclick = function () {
+    item.getElement("remove-file").onclick = function () {
       item.removeFile();
       return false;
     };
 
-
-
-
-
-    item.getElement('url').href = item.url;
-    item.getElement('url').innerText = item.url;
+    item.getElement("url").href = item.url;
+    item.getElement("url").innerText = item.url;
     item.render();
   }
 }
 DownloadItem.canResumeHack = false;
 
 DownloadItem.prototype.getElement = function (name) {
-  return document.querySelector('#item' + this.id + ' .' + name);
+  return document.querySelector("#item" + this.id + " ." + name);
 };
 
 DownloadItem.prototype.render = function () {
   var item = this;
   var now = new Date();
-  var in_progress = (item.state == 'in_progress')
-  var openable = (item.state != 'interrupted') && item.exists && !item.deleted;
+  var in_progress = item.state == "in_progress";
+  var openable = item.state != "interrupted" && item.exists && !item.deleted;
 
   item.startTime = new Date(item.startTime);
   if (DownloadItem.canResumeHack) {
     item.canResume = in_progress && item.paused;
   }
   if (item.filename) {
-    item.basename = item.filename.substring(Math.max(
-      item.filename.lastIndexOf('\\'),
-      item.filename.lastIndexOf('/')) + 1);
+    item.basename = item.filename.substring(
+      Math.max(
+        item.filename.lastIndexOf("\\"),
+        item.filename.lastIndexOf("/"),
+      ) + 1,
+    );
   }
   if (item.estimatedEndTime) {
     item.estimatedEndTime = new Date(item.estimatedEndTime);
@@ -245,94 +284,91 @@ DownloadItem.prototype.render = function () {
     item.endTime = new Date(item.endTime);
   }
 
-
-
-  item.getElement('removed').style.display = openable ? 'none' : 'inline';
-  item.getElement('open-filename').style.display = (
-    openable ? 'inline' : 'none');
-  item.getElement('in-progress').hidden = !in_progress;
-  item.getElement('pause').style.display = (
-    !in_progress || item.paused) ? 'none' : 'inline-block';
-  item.getElement('resume').style.display = (
-    !in_progress || !item.canResume) ? 'none' : 'inline-block';
-  item.getElement('cancel').style.display = (
-    !in_progress ? 'none' : 'inline-block');
-  item.getElement('remove-file').hidden = (
-    (item.state != 'complete') ||
+  item.getElement("removed").style.display = openable ? "none" : "inline";
+  item.getElement("open-filename").style.display = openable ? "inline" : "none";
+  item.getElement("in-progress").hidden = !in_progress;
+  item.getElement("pause").style.display =
+    !in_progress || item.paused ? "none" : "inline-block";
+  item.getElement("resume").style.display =
+    !in_progress || !item.canResume ? "none" : "inline-block";
+  item.getElement("cancel").style.display = !in_progress
+    ? "none"
+    : "inline-block";
+  item.getElement("remove-file").hidden =
+    item.state != "complete" ||
     !item.exists ||
     item.deleted ||
-    !chrome.downloads.removeFile);
-
+    !chrome.downloads.removeFile;
 
   var could_progress = in_progress || item.canResume;
-  item.getElement('progress').style.display = (
-    could_progress ? 'inline-block' : 'none');
-  item.getElement('meter').hidden = !could_progress || !item.totalBytes;
+  item.getElement("progress").style.display = could_progress
+    ? "inline-block"
+    : "none";
+  item.getElement("meter").hidden = !could_progress || !item.totalBytes;
 
-  item.getElement('removed').innerText = item.basename;
-  item.getElement('open-filename').innerText = item.basename;
+  item.getElement("removed").innerText = item.basename;
+  item.getElement("open-filename").innerText = item.basename;
 
-
-
-
-  if (!item.getElement('error').hidden) {
+  if (!item.getElement("error").hidden) {
     if (item.error) {
       // TODO(benjhayden) When https://codereview.chromium.org/16924017/ is
       // released, set minimum_chrome_version and remove the error_N messages.
-      item.getElement('error').innerText = chrome.i18n.getMessage(
-        'error_' + item.error);
-      if (!item.getElement('error').innerText) {
-        item.getElement('error').innerText = item.error;
+      item.getElement("error").innerText = chrome.i18n.getMessage(
+        "error_" + item.error,
+      );
+      if (!item.getElement("error").innerText) {
+        item.getElement("error").innerText = item.error;
       }
     } else if (!openable) {
-      item.getElement('error').innerText = chrome.i18n.getMessage(
-        'errorRemoved');
+      item.getElement("error").innerText =
+        chrome.i18n.getMessage("errorRemoved");
     }
   }
 
-  item.getElement('complete-size').innerText = formatBytes(
-    item.bytesReceived);
-  if (item.totalBytes && (item.state != 'complete')) {
-    item.getElement('progress').innerText = (
-      item.getElement('complete-size').innerText + '/' +
-      formatBytes(item.totalBytes));
-    item.getElement('meter').children[0].style.width = parseInt(
-      100 * item.bytesReceived / item.totalBytes) + '%';
+  item.getElement("complete-size").innerText = formatBytes(item.bytesReceived);
+  if (item.totalBytes && item.state != "complete") {
+    item.getElement("progress").innerText =
+      item.getElement("complete-size").innerText +
+      "/" +
+      formatBytes(item.totalBytes);
+    item.getElement("meter").children[0].style.width =
+      parseInt((100 * item.bytesReceived) / item.totalBytes) + "%";
   }
 
   if (in_progress) {
     if (item.estimatedEndTime && !item.paused) {
       var openWhenComplete = false;
       try {
-        openWhenComplete = JSON.parse(localStorage.openWhenComplete).indexOf(
-          item.id) >= 0;
-      } catch (e) {
-      }
-      item.getElement('time-left').innerText = formatTimeLeft(
-        openWhenComplete, item.estimatedEndTime.getTime() - now.getTime());
+        openWhenComplete =
+          JSON.parse(localStorage.openWhenComplete).indexOf(item.id) >= 0;
+      } catch (e) {}
+      item.getElement("time-left").innerText = formatTimeLeft(
+        openWhenComplete,
+        item.estimatedEndTime.getTime() - now.getTime(),
+      );
     } else {
-      item.getElement('time-left').innerText = String.fromCharCode(160);
+      item.getElement("time-left").innerText = String.fromCharCode(160);
     }
   }
 
   if (item.startTime) {
-    item.getElement('start-time').innerText = formatDateTime(
-      item.startTime);
+    item.getElement("start-time").innerText = formatDateTime(item.startTime);
   }
 
-  ratchetWidth(item.getElement('icon').offsetWidth +
-    item.getElement('file-url').offsetWidth +
-    item.getElement('cancel').offsetWidth +
-    item.getElement('pause').offsetWidth +
-    item.getElement('resume').offsetWidth);
-
+  ratchetWidth(
+    item.getElement("icon").offsetWidth +
+      item.getElement("file-url").offsetWidth +
+      item.getElement("cancel").offsetWidth +
+      item.getElement("pause").offsetWidth +
+      item.getElement("resume").offsetWidth,
+  );
 
   this.maybeAccept();
 };
 
 DownloadItem.prototype.onChanged = function (delta) {
   for (var key in delta) {
-    if (key != 'id') {
+    if (key != "id") {
       this[key] = delta[key].current;
     }
   }
@@ -340,56 +376,37 @@ DownloadItem.prototype.onChanged = function (delta) {
   if (delta.state) {
     setLastOpened();
   }
-  if ((this.state == 'in_progress') && !this.paused) {
+  if (this.state == "in_progress" && !this.paused) {
     DownloadManager.startPollingProgress();
   }
 };
 
 DownloadItem.prototype.onErased = function () {
-  window.removeEventListener('mousemove', this.more_mousemove);
-  document.getElementById('items').removeChild(this.div);
+  window.removeEventListener("mousemove", this.more_mousemove);
+  document.getElementById("items").removeChild(this.div);
 };
 
 DownloadItem.prototype.show = function () {
-
   chrome.downloads.show(this.id);
 };
 
-
-
-
 DownloadItem.prototype.open = function () {
-  if (this.state == 'complete') {
-
+  if (this.state == "complete") {
     let itemd = this;
-    chrome.permissions.contains(
-      { origins: ["file://*"] },
-      function (granted) {
-        if (granted) {
-          convertpdf(itemd.filename, itemd.basename);
-          document.getElementById('noperm').style.display = 'none';
-        } else {
-
-          document.getElementById('noperm').style.display = '';
-
-
-        }
+    chrome.permissions.contains({ origins: ["file://*"] }, function (granted) {
+      if (granted) {
+        convertpdf(itemd.filename, itemd.basename);
+        document.getElementById("noperm").style.display = "none";
+      } else {
+        document.getElementById("noperm").style.display = "";
       }
-    );
-
-
-
+    });
 
     //chrome.downloads.open(this.id);
     return;
   }
   chrome.runtime.sendMessage({ openWhenComplete: this.id });
 };
-
-
-
-
-
 
 DownloadItem.prototype.removeFile = function () {
   chrome.downloads.removeFile(this.id);
@@ -417,10 +434,12 @@ DownloadItem.prototype.maybeAccept = function () {
   // This function is safe to call at any time for any item, and it will always
   // do the right thing, which is to display the danger prompt only if the item
   // is in_progress and dangerous, and if the prompt is not already displayed.
-  if ((this.state != 'in_progress') ||
-    (this.danger == 'safe') ||
-    (this.danger == 'accepted') ||
-    DownloadItem.prototype.maybeAccept.accepting_danger) {
+  if (
+    this.state != "in_progress" ||
+    this.danger == "safe" ||
+    this.danger == "accepted" ||
+    DownloadItem.prototype.maybeAccept.accepting_danger
+  ) {
     return;
   }
   ratchetWidth(400);
@@ -436,8 +455,11 @@ DownloadItem.prototype.maybeAccept = function () {
   setTimeout(function () {
     chrome.downloads.acceptDanger(id, function () {
       DownloadItem.prototype.maybeAccept.accepting_danger = false;
-      arrayFrom(document.getElementById('items').childNodes).forEach(
-        function (item_div) { item_div.item.maybeAccept(); });
+      arrayFrom(document.getElementById("items").childNodes).forEach(
+        function (item_div) {
+          item_div.item.maybeAccept();
+        },
+      );
     });
   }, 500);
 };
@@ -448,7 +470,7 @@ var DownloadManager = {};
 DownloadManager.showingOlder = false;
 
 DownloadManager.getItem = function (id) {
-  var item_div = document.getElementById('item' + id);
+  var item_div = document.getElementById("item" + id);
   return item_div ? item_div.item : null;
 };
 
@@ -460,81 +482,87 @@ DownloadManager.getOrCreate = function (data) {
 DownloadManager.forEachItem = function (cb) {
   // Calls cb(item, index) in the order that they are displayed, i.e. in order
   // of decreasing startTime.
-  arrayFrom(document.getElementById('items').childNodes).forEach(
-    function (item_div, index) { cb(item_div.item, index); });
+  arrayFrom(document.getElementById("items").childNodes).forEach(
+    function (item_div, index) {
+      cb(item_div.item, index);
+    },
+  );
 };
 
 DownloadManager.startPollingProgress = function () {
   if (DownloadManager.startPollingProgress.tid < 0) {
     DownloadManager.startPollingProgress.tid = setTimeout(
       DownloadManager.startPollingProgress.pollProgress,
-      DownloadManager.startPollingProgress.MS);
+      DownloadManager.startPollingProgress.MS,
+    );
   }
-}
+};
 DownloadManager.startPollingProgress.MS = 200;
 DownloadManager.startPollingProgress.tid = -1;
 DownloadManager.startPollingProgress.pollProgress = function () {
   DownloadManager.startPollingProgress.tid = -1;
-  chrome.downloads.search({ state: 'in_progress', paused: false },
+  chrome.downloads.search(
+    { state: "in_progress", paused: false },
     function (results) {
-      if (!results.length)
-        return;
+      if (!results.length) return;
       results.forEach(function (result) {
         var item = DownloadManager.getOrCreate(result);
         for (var prop in result) {
           item[prop] = result[prop];
         }
         item.render();
-        if ((item.state == 'in_progress') && !item.paused) {
+        if (item.state == "in_progress" && !item.paused) {
           DownloadManager.startPollingProgress();
         }
       });
-    });
+    },
+  );
 };
 
 DownloadManager.showNew = function () {
-  var any_items = (document.getElementById('items').childNodes.length > 0);
-  document.getElementById('empty').style.display =
-    any_items ? 'none' : 'inline-block';
-  document.getElementById('head').style.borderBottomWidth =
-    (any_items ? 1 : 0) + 'px';
+  var any_items = document.getElementById("items").childNodes.length > 0;
+  document.getElementById("empty").style.display = any_items
+    ? "none"
+    : "inline-block";
+  document.getElementById("head").style.borderBottomWidth =
+    (any_items ? 1 : 0) + "px";
 
-
-  var query_search = document.getElementById('q');
+  var query_search = document.getElementById("q");
   query_search.hidden = !any_items;
 
   if (!any_items) {
     return;
   }
-  var old_ms = (new Date()).getTime() - kOldMs;
+  var old_ms = new Date().getTime() - kOldMs;
   var any_hidden = false;
   var any_showing = false;
   // First show up to kShowNewMax items newer than kOldMs. If there aren't any
   // items newer than kOldMs, then show up to kShowNewMax items of any age. If
   // there are any hidden items, show the Show Older button.
   DownloadManager.forEachItem(function (item, index) {
-    item.div.hidden = !DownloadManager.showingOlder && (
-      (item.startTime.getTime() < old_ms) || (index >= kShowNewMax));
+    item.div.hidden =
+      !DownloadManager.showingOlder &&
+      (item.startTime.getTime() < old_ms || index >= kShowNewMax);
     any_hidden = any_hidden || item.div.hidden;
     any_showing = any_showing || !item.div.hidden;
   });
   if (!any_showing) {
     any_hidden = false;
     DownloadManager.forEachItem(function (item, index) {
-      item.div.hidden = !DownloadManager.showingOlder && (index >= kShowNewMax);
+      item.div.hidden = !DownloadManager.showingOlder && index >= kShowNewMax;
       any_hidden = any_hidden || item.div.hidden;
       any_showing = any_showing || !item.div.hidden;
     });
   }
-  document.getElementById('older').hidden = !any_hidden;
+  document.getElementById("older").hidden = !any_hidden;
 
   query_search.focus();
 };
 
 DownloadManager.showOlder = function () {
   DownloadManager.showingOlder = true;
-  var loading_older_span = document.getElementById('loading-older');
-  document.getElementById('older').hidden = true;
+  var loading_older_span = document.getElementById("loading-older");
+  document.getElementById("older").hidden = true;
   loading_older_span.hidden = false;
   chrome.downloads.search({}, function (results) {
     results.forEach(function (result) {
@@ -548,22 +576,23 @@ DownloadManager.showOlder = function () {
 DownloadManager.onSearch = function () {
   // split string by space, but ignore space in quotes
   // http://stackoverflow.com/questions/16261635
-  var query = document.getElementById('q').value.match(/(?:[^\s"]+|"[^"]*")+/g);
+  var query = document.getElementById("q").value.match(/(?:[^\s"]+|"[^"]*")+/g);
   if (!query) {
     DownloadManager.showNew();
-    document.getElementById('search-zero').hidden = true;
+    document.getElementById("search-zero").hidden = true;
   } else {
     query = query.map(function (term) {
       // strip quotes
-      return (term.match(/\s/) &&
+      return term.match(/\s/) &&
         term[0].match(/["']/) &&
-        term[term.length - 1] == term[0]) ?
-        term.substr(1, term.length - 2) : term;
+        term[term.length - 1] == term[0]
+        ? term.substr(1, term.length - 2)
+        : term;
     });
-    var searching = document.getElementById('searching');
+    var searching = document.getElementById("searching");
     searching.hidden = false;
     chrome.downloads.search({ query: query }, function (results) {
-      document.getElementById('older').hidden = true;
+      document.getElementById("older").hidden = true;
       DownloadManager.forEachItem(function (item) {
         item.div.hidden = true;
       });
@@ -571,7 +600,7 @@ DownloadManager.onSearch = function () {
         DownloadManager.getOrCreate(result).div.hidden = false;
       });
       searching.hidden = true;
-      document.getElementById('search-zero').hidden = (results.length != 0);
+      document.getElementById("search-zero").hidden = results.length != 0;
     });
   }
 };
@@ -589,10 +618,10 @@ var kShowNewMax = 50;
 var kOldMs = 1000 * 60 * 60 * 24 * 7;
 
 // These settings can be tuned by modifying localStorage in dev-tools.
-if ('kShowNewMax' in localStorage) {
+if ("kShowNewMax" in localStorage) {
   kShowNewMax = parseInt(localStorage.kShowNewMax);
 }
-if ('kOldMs' in localStorage) {
+if ("kOldMs" in localStorage) {
   kOldMs = parseInt(localStorage.kOldMs);
 }
 
@@ -602,23 +631,27 @@ DownloadManager.loadItems = function () {
   // TODO(benjhayden) When https://codereview.chromium.org/16924017/ is
   // released, set minimum_chrome_version and remove this try/catch.
   try {
-    chrome.downloads.search({
-      orderBy: ['-startTime'],
-      limit: kShowNewMax + 1
-    },
+    chrome.downloads.search(
+      {
+        orderBy: ["-startTime"],
+        limit: kShowNewMax + 1,
+      },
       function (results) {
         DownloadManager.loadItems.items = results;
         DownloadManager.loadItems.onLoaded();
-      });
+      },
+    );
   } catch (exc) {
-    chrome.downloads.search({
-      orderBy: '-startTime',
-      limit: kShowNewMax + 1
-    },
+    chrome.downloads.search(
+      {
+        orderBy: "-startTime",
+        limit: kShowNewMax + 1,
+      },
       function (results) {
         DownloadManager.loadItems.items = results;
         DownloadManager.loadItems.onLoaded();
-      });
+      },
+    );
   }
 };
 DownloadManager.loadItems.items = [];
@@ -670,30 +703,242 @@ if (chrome.downloads) {
   });
 
   window.onload = function () {
-    ratchetWidth(
-      document.getElementById('q-outer').offsetWidth);
+    ratchetWidth(document.getElementById("q-outer").offsetWidth);
     setLastOpened();
     loadI18nMessages();
     DownloadManager.loadItems.onWindowLoaded();
-    document.getElementById('older').onclick = function () {
+    document.getElementById("older").onclick = function () {
       DownloadManager.showOlder();
       return false;
     };
-    document.getElementById('q').onsearch = function () {
+    document.getElementById("q").onsearch = function () {
       DownloadManager.onSearch();
     };
 
+    // ── Tab Configuración ──
+    var toggle = document.getElementById("toggle-pendientes");
+    var toggleDark = document.getElementById("toggle-darkmode");
 
+    function refreshConfigTab(data) {
+      toggle.checked = !!data.notifyPending;
+      toggleDark.checked = !!data.darkMode;
+    }
+
+    chrome.storage.local.get(["notifyPending", "darkMode"], function (data) {
+      refreshConfigTab(data);
+    });
+    toggle.addEventListener("change", function () {
+      chrome.storage.local.set({ notifyPending: toggle.checked });
+    });
+    toggleDark.addEventListener("change", function () {
+      chrome.storage.local.set({ darkMode: toggleDark.checked });
+    });
+    // Exportar configuración como JSON al directorio del usuario (Descargas)
+    document
+      .getElementById("btn-export-config")
+      .addEventListener("click", function () {
+        var keys = ["notifyPending", "darkMode", "waContacts", "favorites"];
+        chrome.storage.local.get(keys, function (data) {
+          var json = JSON.stringify(data, null, 2);
+          var dataUrl =
+            "data:application/json;charset=utf-8," + encodeURIComponent(json);
+          var now = new Date();
+          var stamp =
+            now.getFullYear() +
+            "-" +
+            String(now.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(now.getDate()).padStart(2, "0");
+          chrome.downloads.download({
+            url: dataUrl,
+            filename: "zip-e-partes-config-" + stamp + ".json",
+            saveAs: false,
+          });
+        });
+      });
+
+    // Importar configuración desde JSON
+    document
+      .getElementById("input-import-config")
+      .addEventListener("change", function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          try {
+            var data = JSON.parse(ev.target.result);
+            var allowed = [
+              "notifyPending",
+              "darkMode",
+              "waContacts",
+              "favorites",
+            ];
+            var filtered = {};
+            allowed.forEach(function (k) {
+              if (data[k] !== undefined) filtered[k] = data[k];
+            });
+            chrome.storage.local.set(filtered, function () {
+              chrome.storage.local.get(
+                ["notifyPending", "darkMode"],
+                function (d) {
+                  refreshConfigTab(d);
+                },
+              );
+              var feedback = document.getElementById("import-feedback");
+              feedback.style.display = "inline";
+              setTimeout(function () {
+                feedback.style.display = "none";
+              }, 3000);
+            });
+          } catch (err) {
+            console.error("Error importando config:", err);
+          }
+          e.target.value = "";
+        };
+        reader.readAsText(file);
+      });
+
+    // Refrescar el campo cada vez que se muestra el tab
+    $("#tab-config-link").on("shown.bs.tab", function () {
+      chrome.storage.local.get(["notifyPending", "darkMode"], function (data) {
+        refreshConfigTab(data);
+      });
+    });
+    // ── Contactos tab: cargar lista al mostrar ──
+    $("#tab-contactos-link").on("shown.bs.tab", function () {
+      renderContactList();
+    });
+    document
+      .getElementById("btn-add-contact")
+      .addEventListener("click", function () {
+        var name = document.getElementById("contact-name").value.trim();
+        var phone = document.getElementById("contact-phone").value.trim();
+        if (!name || !phone) return;
+        chrome.storage.local.get("waContacts", function (data) {
+          var contacts = data.waContacts || [];
+          contacts.push({ name: name, phone: phone });
+          chrome.storage.local.set({ waContacts: contacts }, function () {
+            document.getElementById("contact-name").value = "";
+            document.getElementById("contact-phone").value = "";
+            renderContactList();
+          });
+        });
+      });
+
+    // ── Tab Favoritos ──
+    $("#tab-favoritos-link").on("shown.bs.tab", function () {
+      renderFavorites();
+    });
+
+    function renderFavorites() {
+      chrome.storage.local.get("favorites", function (data) {
+        var favs = data.favorites || [];
+        var list = document.getElementById("favorites-list");
+        list.innerHTML = "";
+        if (favs.length === 0) {
+          list.innerHTML =
+            '<p style="font-size:12px;color:#888;margin:4px 0;">Sin favoritos guardados.</p>';
+          return;
+        }
+        favs.forEach(function (fav, idx) {
+          var row = document.createElement("div");
+          row.style.cssText =
+            "display:flex;align-items:flex-start;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e9ecef;gap:6px;";
+          row.innerHTML =
+            '<div style="flex:1;min-width:0;">' +
+            '<button type="button" data-idx="' +
+            idx +
+            '" class="btn btn-link btn-fav-go p-0 text-left font-weight-bold" style="font-size:13px;white-space:normal;text-align:left;">' +
+            fav.expediente +
+            "</button>" +
+            (fav.obs
+              ? '<div style="font-size:11px;color:#666;margin-top:1px;">' +
+                fav.obs +
+                "</div>"
+              : "") +
+            "</div>" +
+            '<button type="button" data-idx="' +
+            idx +
+            '" class="btn btn-sm btn-outline-danger btn-del-fav flex-shrink-0" style="padding:1px 6px;font-size:11px;">&times;</button>';
+          list.appendChild(row);
+        });
+        list.querySelectorAll(".btn-fav-go").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var fav = (JSON.parse(localStorage.getItem("favorites") || "[]") ||
+              [])[parseInt(btn.getAttribute("data-idx"), 10)];
+            chrome.storage.local.get("favorites", function (data2) {
+              var f = (data2.favorites || [])[
+                parseInt(btn.getAttribute("data-idx"), 10)
+              ];
+              if (!f) return;
+              chrome.runtime.sendMessage({
+                type: "fillFavorite",
+                expediente: f.expediente,
+              });
+            });
+          });
+        });
+        list.querySelectorAll(".btn-del-fav").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var i = parseInt(btn.getAttribute("data-idx"), 10);
+            chrome.storage.local.get("favorites", function (data2) {
+              var updated = (data2.favorites || []).filter(function (_, j) {
+                return j !== i;
+              });
+              chrome.storage.local.set({ favorites: updated }, renderFavorites);
+            });
+          });
+        });
+      });
+    }
+
+    function renderContactList() {
+      chrome.storage.local.get("waContacts", function (data) {
+        var contacts = data.waContacts || [];
+        var list = document.getElementById("contact-list");
+        list.innerHTML = "";
+        if (contacts.length === 0) {
+          list.innerHTML =
+            '<p style="font-size:12px;color:#888;margin:4px 0;">Sin contactos guardados.</p>';
+          return;
+        }
+        contacts.forEach(function (c, idx) {
+          var row = document.createElement("div");
+          row.style.cssText =
+            "display:flex;align-items:center;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e9ecef;font-size:13px;";
+          row.innerHTML =
+            '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' +
+            c.name +
+            '">' +
+            c.name +
+            "</span>" +
+            '<span style="color:#555;margin:0 8px;">' +
+            c.phone +
+            "</span>" +
+            '<button data-idx="' +
+            idx +
+            '" class="btn btn-sm btn-outline-danger btn-del-contact" style="padding:1px 6px;font-size:11px;">&times;</button>';
+          list.appendChild(row);
+        });
+        list.querySelectorAll(".btn-del-contact").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var i = parseInt(btn.getAttribute("data-idx"), 10);
+            chrome.storage.local.get("waContacts", function (data) {
+              var updated = (data.waContacts || []).filter(function (_, j) {
+                return j !== i;
+              });
+              chrome.storage.local.set(
+                { waContacts: updated },
+                renderContactList,
+              );
+            });
+          });
+        });
+      });
+    }
   };
 }
 
 try {
-
-  chrome.runtime.sendMessage({ message: "seticon" }, function (response) {
-  });
-} catch (error) {
-
-}
-
-
-
+  chrome.runtime.sendMessage({ message: "seticon" }, function (response) {});
+} catch (error) {}
