@@ -184,6 +184,10 @@ async function markSyncFailure() {
   await chrome.storage.local.set(payload);
 }
 
+// NOTE: keeper tab logic removed. We no longer create background tabs when
+// the user closes the site. Reloads will only happen on an existing open
+// site tab when the user is idle (no interaction) for the configured period.
+
 async function syncMonitorAlarm() {
   const data = await chrome.storage.local.get("notifyPending");
   if (data.notifyPending) {
@@ -191,7 +195,7 @@ async function syncMonitorAlarm() {
     if (!existing) {
       chrome.alarms.create(MONITOR_ALARM, {
         delayInMinutes: 0.1,
-        periodInMinutes: 1,
+        periodInMinutes: 5,
       });
     }
   } else {
@@ -231,6 +235,31 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
           pendingUrl: APP_BASE_URL + status.inGestionHref,
         });
       }
+      // Decidir recarga de la pestaña según actividad del usuario.
+      try {
+        const now = Date.now();
+        const reloadData = await chrome.storage.local.get("lastPageReloadAt");
+        const lastReloadAt = Number(reloadData.lastPageReloadAt) || 0;
+        const elapsedSinceReload = now - lastReloadAt;
+        const lastInteraction = Number(status.lastInteraction) || 0;
+        const idleMs = now - lastInteraction;
+        const hasFocus = !!status.hasFocus;
+
+        const MIN_RELOAD_MS = 5 * 60 * 1000; // 5 minutos
+        if (
+          elapsedSinceReload >= MIN_RELOAD_MS &&
+          (!hasFocus || idleMs >= MIN_RELOAD_MS)
+        ) {
+          try {
+            chrome.tabs.reload(tab.id);
+            await chrome.storage.local.set({ lastPageReloadAt: now });
+          } catch (e) {
+            console.warn("[pendiente] error reloading tab:", e);
+          }
+        }
+      } catch (e) {
+        console.warn("[pendiente] error evaluando reload:", e);
+      }
       await markSyncSuccess();
     } else {
       // Fallback: content script no disponible.
@@ -242,12 +271,10 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
       }
     }
   } else {
-    const success = await checkPendingFromBackground();
-    if (success) {
-      await markSyncSuccess();
-    } else {
-      await markSyncFailure();
-    }
+    // No hay pestañas abiertas del sistema: no hacemos nada para evitar
+    // crear/abrir ventanas automáticamente. La sincronización sólo ocurre
+    // cuando el usuario tiene la ventana abierta.
+    return;
   }
 });
 

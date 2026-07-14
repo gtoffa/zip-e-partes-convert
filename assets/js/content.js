@@ -421,11 +421,14 @@
 
     const titleEl = document.getElementById("TEXTBLOCKTITLE_MPAGE");
     if (!titleEl) return;
-    const rawTitle = titleEl.textContent.trim();
-    const aeMatch = rawTitle.match(/(\d+)\s*-\s*AE\b/i);
-    const aeNumber = aeMatch ? aeMatch[1] : "";
-    const expediente = rawTitle;
-    if (!expediente) return;
+    // No almacenar `expediente` ni `aeNumber` en el closure: el DOM puede
+    // cambiar cuando el usuario navega entre trámites y queremos que el
+    // modal siempre refleje el expediente actual.
+    function readExpedienteAndAe() {
+      const raw = (titleEl.textContent || "").trim();
+      const aeMatch = raw.match(/(\d+)\s*-\s*AE\b/i);
+      return { expediente: raw, aeNumber: aeMatch ? aeMatch[1] : "" };
+    }
 
     const btn = document.createElement("button");
     btn.type = "button";
@@ -445,14 +448,8 @@
     overlay.innerHTML =
       '<div style="background:#fff;border-radius:8px;padding:24px;min-width:340px;box-shadow:0 4px 24px rgba(0,0,0,0.25);">' +
       '<h5 style="margin:0 0 8px;font-size:16px;">\u2B50 Agregar a favoritos</h5>' +
-      '<p style="margin:0 0 6px;font-size:13px;color:#555;">Expediente: <strong>' +
-      expediente +
-      "</strong></p>" +
-      (aeNumber
-        ? '<p style="margin:0 0 8px;font-size:12px;color:#666;">Nro AE: <strong>' +
-          aeNumber +
-          "</strong></p>"
-        : "") +
+      '<p id="ext-fav-exp-line" style="margin:0 0 6px;font-size:13px;color:#555;">Expediente: <strong id="ext-fav-exp"></strong></p>' +
+      '<p id="ext-fav-ae-line" style="margin:0 0 8px;font-size:12px;color:#666;display:none;">Nro AE: <strong id="ext-fav-ae"></strong></p>' +
       '<textarea id="ext-fav-obs" rows="3" placeholder="Observaciones (opcional)" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px;font-size:13px;box-sizing:border-box;resize:vertical;margin-bottom:14px;"></textarea>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
       '<button type="button" id="ext-fav-cancel" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;">Cancelar</button>' +
@@ -461,6 +458,19 @@
     document.body.appendChild(overlay);
 
     btn.addEventListener("click", function () {
+      // Leer expediente y AE en el momento de abrir el modal para evitar
+      // mostrar/guardar un trámite anterior.
+      const info = readExpedienteAndAe();
+      document.getElementById("ext-fav-exp").textContent = info.expediente;
+      const aeLine = document.getElementById("ext-fav-ae-line");
+      const aeEl = document.getElementById("ext-fav-ae");
+      if (info.aeNumber) {
+        aeEl.textContent = info.aeNumber;
+        aeLine.style.display = "block";
+      } else {
+        aeLine.style.display = "none";
+        aeEl.textContent = "";
+      }
       document.getElementById("ext-fav-obs").value = "";
       overlay.style.display = "flex";
     });
@@ -472,17 +482,19 @@
     document
       .getElementById("ext-fav-save")
       .addEventListener("click", async function () {
+        // Leer expediente actual al guardar (no confiar en valores cerrados).
+        const info = readExpedienteAndAe();
         const obs = document.getElementById("ext-fav-obs").value.trim();
         const data = await chrome.storage.local.get("favorites");
         const favs = data.favorites || [];
-        // Evitar duplicados
+        // Evitar duplicados comparando con el expediente actual
         const exists = favs.some(function (f) {
-          return f.expediente === expediente;
+          return f.expediente === info.expediente;
         });
         if (!exists) {
           favs.unshift({
-            expediente: expediente,
-            aeNumber: aeNumber,
+            expediente: info.expediente,
+            aeNumber: info.aeNumber,
             obs: obs,
           });
           await chrome.storage.local.set({ favorites: favs });
