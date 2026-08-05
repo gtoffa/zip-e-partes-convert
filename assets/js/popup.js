@@ -718,10 +718,12 @@ if (chrome.downloads) {
     // ── Tab Configuración ──
     var toggle = document.getElementById("toggle-pendientes");
     var toggleDark = document.getElementById("toggle-darkmode");
+    var notifyPendingInfo = document.getElementById("notify-pending-info");
 
     function refreshConfigTab(data) {
       toggle.checked = !!data.notifyPending;
       toggleDark.checked = !!data.darkMode;
+      notifyPendingInfo.style.display = toggle.checked ? "block" : "none";
     }
 
     chrome.storage.local.get(["notifyPending", "darkMode"], function (data) {
@@ -729,10 +731,19 @@ if (chrome.downloads) {
     });
     toggle.addEventListener("change", function () {
       chrome.storage.local.set({ notifyPending: toggle.checked });
+      notifyPendingInfo.style.display = toggle.checked ? "block" : "none";
     });
     toggleDark.addEventListener("change", function () {
       chrome.storage.local.set({ darkMode: toggleDark.checked });
     });
+
+    document
+      .getElementById("link-ver-novedades")
+      .addEventListener("click", function (e) {
+        e.preventDefault();
+        chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
+      });
+
     // Exportar configuración como JSON al directorio del usuario (Descargas)
     document
       .getElementById("btn-export-config")

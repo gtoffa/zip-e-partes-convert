@@ -18,12 +18,19 @@ body.dark-mode .page-sidebar {
     background-color: #1c2529;
 }
 
-body.dark-mode .page-sidebar .sidebar-menu A {
-    color: #c5c5c5;
+/* Se incluye ":visited" en cada regla del menú (con !important) porque casi
+   todos sus links terminan visitados tarde o temprano: sin esto, el tono
+   violeta general de a:visited (sección 13) les gana por !important y el
+   menú queda con una mezcla rara de gris y violeta en vez de su propio
+   esquema de color. */
+body.dark-mode .page-sidebar .sidebar-menu A,
+body.dark-mode .page-sidebar .sidebar-menu A:visited {
+    color: #c5c5c5 !important;
 }
 
-body.dark-mode .page-sidebar .sidebar-menu A:hover {
-    color: #ffffff;
+body.dark-mode .page-sidebar .sidebar-menu A:hover,
+body.dark-mode .page-sidebar .sidebar-menu A:visited:hover {
+    color: #ffffff !important;
     background-color: #2a5f6e;
 }
 
@@ -31,9 +38,10 @@ body.dark-mode .page-sidebar .sidebar-menu .submenu {
     background-color: #1a2226;
 }
 
-body.dark-mode .page-sidebar .sidebar-menu LI.active>A {
+body.dark-mode .page-sidebar .sidebar-menu LI.active>A,
+body.dark-mode .page-sidebar .sidebar-menu LI.active>A:visited {
     background-color: #2a5f6e;
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 /* 3. NAVBAR / HEADER
@@ -80,6 +88,7 @@ body.dark-mode .WorkWithRowSelected {
 body.dark-mode .form-control,
 body.dark-mode input[type="text"],
 body.dark-mode input[type="number"],
+body.dark-mode input[type="tel"],
 body.dark-mode select,
 body.dark-mode textarea,
 body.dark-mode .chosen-container-single .chosen-single {
@@ -215,11 +224,50 @@ body.dark-mode ::-webkit-scrollbar-thumb {
 /* 13. LINKS GENERALES
    ============================================================ */
 body.dark-mode a {
-    color: #7ab4e8;
+    color: #7ab4e8 !important;
 }
 
 body.dark-mode a:hover {
-    color: #a8d8ea;
+    color: #a8d8ea !important;
+}
+
+/* El navegador aplica su propio color (violeta oscuro) a los links
+   visitados, que queda casi ilegible sobre el fondo oscuro. Se fuerza un
+   tono violeta claro con !important porque a:visited del user agent gana
+   por especificidad de pseudo-clase si no se lo pisa explícitamente. */
+body.dark-mode a:visited {
+    color: #c3a6e0 !important;
+}
+
+body.dark-mode a:visited:hover {
+    color: #dcc6f0 !important;
+}
+
+/* 14. EXTENDED COMBO (selects con buscador armados como dropdown de Bootstrap)
+   ============================================================ */
+body.dark-mode .dropdown-menu {
+    background-color: #1c2529 !important;
+    border: 1px solid #3d5c6a !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark-mode .dropdown-menu li>a,
+body.dark-mode .dropdown-menu .OptionLabel {
+    color: #e0e0e0 !important;
+    background-color: transparent !important;
+}
+
+body.dark-mode .dropdown-menu li>a:hover,
+body.dark-mode .dropdown-menu li.SelectedItem>a {
+    background-color: #2a5f6e !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .ExtendedCombo .btn-default,
+body.dark-mode .ExtendedCombo .dropdown-toggle {
+    background-color: #2a3740 !important;
+    color: #e0e0e0 !important;
+    border-color: #3d5c6a !important;
 }
 
 /* ============================================================
@@ -352,7 +400,7 @@ body.dark-mode select option {
 /* ============================================================
    REGLA NUCLEAR — último recurso para zonas persistentes
    ============================================================ */
-body.dark-mode div:not([class*="toast"]):not([class*="pnotify"]),
+body.dark-mode div:not([class*="toast"]):not([class*="pnotify"]):not(.ext-modal-overlay):not(.ext-modal-card),
 body.dark-mode table,
 body.dark-mode tbody,
 body.dark-mode thead {

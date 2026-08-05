@@ -12,6 +12,11 @@
 
   const DARK_LINK_ID = "zep-dark-mode-css";
   const DARK_FLASH_ID = "zep-dark-flash";
+  // Espejo del flag en el localStorage de la propia página (no el de la
+  // extensión): se lee de forma SÍNCRONA apenas arranca el content script,
+  // sin esperar la respuesta async de chrome.storage.local, que puede tardar
+  // lo suficiente como para que el navegador ya haya pintado en blanco.
+  const DARK_MODE_LS_KEY = "zepDarkModeMirror";
   let darkModeEnabled = false;
   let darkModeEnforcerStarted = false;
 
@@ -54,9 +59,15 @@
     if (darkModeEnforcerStarted) return;
     darkModeEnforcerStarted = true;
 
-    // Algunas vistas AJAX recrean nodos y pueden quitar clase/link temporalmente.
-    // Reaplicar en cada mutación evita el destello blanco.
+    // El sitio (GeneXus) recarga por ajax secciones enteras (el menú lateral,
+    // por ejemplo) reemplazando nodos del DOM; eso puede sacarle la clase
+    // "dark-mode" a <body> por un instante. Como todas las reglas de
+    // dark-mode.css están bajo el selector "body.dark-mode ...", en ese
+    // instante TODO se ve sin estilo (blanco) hasta que este observer
+    // reacciona. injectFlashGuard() (ver más abajo) se deja montado todo el
+    // tiempo que el modo oscuro esté activo para tapar ese hueco.
     const observer = new MutationObserver(function () {
+      injectFlashGuard();
       ensureDarkModeApplied();
     });
     observer.observe(document.documentElement, {
@@ -69,31 +80,61 @@
     document.addEventListener("visibilitychange", function () {
       if (!darkModeEnabled || document.visibilityState !== "visible") return;
       injectFlashGuard();
-      requestAnimationFrame(function () {
-        ensureDarkModeApplied();
-        removeFlashGuard();
-      });
+      ensureDarkModeApplied();
+    });
+  }
+
+  // Estilo de los modales propios de la extensión (favoritos / WhatsApp).
+  // Se controla por JS -en vez de depender sólo del CSS del sitio- porque
+  // estos nodos se inyectan dinámicamente y así se evita cualquier pelea de
+  // especificidad con las reglas de dark-mode.css.
+  function modalCardStyle(extra) {
+    const bg = darkModeEnabled ? "rgba(34,44,50,0.97)" : "rgba(255,255,255,0.97)";
+    const color = darkModeEnabled ? "#e0e0e0" : "#212529";
+    return (
+      "background:" +
+      bg +
+      ";color:" +
+      color +
+      ";backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);" +
+      (extra || "")
+    );
+  }
+
+  function refreshModalCardsTheme() {
+    document.querySelectorAll(".ext-modal-card").forEach(function (card) {
+      card.style.cssText = modalCardStyle(card.dataset.baseStyle || "");
     });
   }
 
   function applyDarkMode(enabled) {
     darkModeEnabled = enabled;
+    refreshModalCardsTheme();
 
     // <body> puede no existir si se llama muy temprano; esperar al DOM
     function toggle() {
       document.body.classList.toggle("dark-mode", enabled);
       const existing = document.getElementById(DARK_LINK_ID);
-      if (enabled && !existing) {
-        const link = document.createElement("link");
-        link.id = DARK_LINK_ID;
-        link.rel = "stylesheet";
-        link.type = "text/css";
-        link.href = chrome.runtime.getURL("assets/css/dark-mode.css");
-        document.head.appendChild(link);
-      } else if (!enabled && existing) {
-        existing.remove();
+      if (enabled) {
+        if (!existing) {
+          const link = document.createElement("link");
+          link.id = DARK_LINK_ID;
+          link.rel = "stylesheet";
+          link.type = "text/css";
+          link.href = chrome.runtime.getURL("assets/css/dark-mode.css");
+          document.head.appendChild(link);
+        }
+        // El guard queda montado mientras dure la sesión con modo oscuro
+        // activo (no se saca apenas carga el CSS): GeneXus puede volver a
+        // sacarle la clase "dark-mode" a <body> más adelante (ajax parcial
+        // de alguna sección) y este observer no siempre reacciona antes del
+        // siguiente frame pintado. Mantenerlo puesto evita ese flash
+        // intermitente; se retira recién cuando el usuario apaga la opción.
+        injectFlashGuard();
+      } else {
+        if (existing) existing.remove();
+        removeFlashGuard();
       }
-      removeFlashGuard();
     }
 
     if (enabled) {
@@ -108,15 +149,52 @@
     }
   }
 
+  function readDarkModeMirror() {
+    try {
+      return localStorage.getItem(DARK_MODE_LS_KEY) === "1";
+    } catch (e) {
+      // localStorage puede estar bloqueado en algún perfil; sin la
+      // optimización anti-flash el modo oscuro igual funciona (sólo async).
+      return false;
+    }
+  }
+
+  function writeDarkModeMirror(enabled) {
+    try {
+      localStorage.setItem(DARK_MODE_LS_KEY, enabled ? "1" : "0");
+    } catch (e) {
+      // Ignorar: ver readDarkModeMirror.
+    }
+  }
+
   function initDarkMode() {
-    // Verificar si dark mode estaba activo y pre-oscurecer antes del render
+    // 1) Lectura SÍNCRONA del espejo en el localStorage de la página, para
+    //    oscurecer antes del primer pintado sin esperar a chrome.storage.local
+    //    (que es async y puede tardar lo suficiente como para que el
+    //    navegador ya haya pintado en blanco, causando el flash).
+    const mirrorDark = readDarkModeMirror();
+    if (mirrorDark) {
+      injectFlashGuard();
+      applyDarkMode(true);
+    }
+
+    // 2) Confirmar contra la fuente de verdad (chrome.storage.local) y
+    //    corregir si el espejo estaba desactualizado.
     chrome.storage.local.get("darkMode", function (data) {
-      if (data.darkMode) injectFlashGuard();
-      applyDarkMode(!!data.darkMode);
+      const enabled = !!data.darkMode;
+      writeDarkModeMirror(enabled);
+      if (enabled !== mirrorDark) {
+        applyDarkMode(enabled);
+      } else if (!enabled) {
+        removeFlashGuard();
+      }
     });
+
     chrome.storage.onChanged.addListener(function (changes) {
       if ("darkMode" in changes) {
-        applyDarkMode(!!changes.darkMode.newValue);
+        const enabled = !!changes.darkMode.newValue;
+        writeDarkModeMirror(enabled);
+        applyDarkMode(enabled);
       }
     });
   }
@@ -167,7 +245,9 @@
     // Guardar la URL de pendientes con su token actual para que el service worker la use
     if (href) {
       const fullUrl = "https://app.chaco.gob.ar/tramites/servlet/" + href;
-      chrome.storage.local.set({ pendingUrl: fullUrl });
+      // Se guarda en storage.session (memoria, no persiste en disco) porque
+      // la URL contiene el token de sesión vigente.
+      chrome.storage.session.set({ pendingUrl: fullUrl });
     }
     chrome.runtime.sendMessage({
       type: "pendingCount",
@@ -181,7 +261,7 @@
     const href = linkEl.getAttribute("href") || "";
     if (href) {
       const fullUrl = "https://app.chaco.gob.ar/tramites/servlet/" + href;
-      chrome.storage.local.set({ inGestionUrl: fullUrl, pendingUrl: fullUrl });
+      chrome.storage.session.set({ inGestionUrl: fullUrl, pendingUrl: fullUrl });
     }
     chrome.runtime.sendMessage({
       type: "inGestionCount",
@@ -305,18 +385,26 @@
     if (document.getElementById("ext-phone-modal")) return;
     const modal = document.createElement("div");
     modal.id = "ext-phone-modal";
+    modal.className = "ext-modal-overlay";
     modal.style.cssText =
       "display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;";
+    const phoneCardBaseStyle =
+      "border-radius:8px;padding:24px;min-width:340px;box-shadow:0 4px 24px rgba(0,0,0,0.25);";
     modal.innerHTML =
-      '<div style="background:#fff;border-radius:8px;padding:24px;min-width:340px;box-shadow:0 4px 24px rgba(0,0,0,0.25);">' +
+      '<div class="ext-modal-card" data-base-style="' +
+      phoneCardBaseStyle +
+      '" style="' +
+      phoneCardBaseStyle +
+      '">' +
       '<h5 style="margin:0 0 8px;font-size:16px;">N\u00famero de WhatsApp</h5>' +
-      '<p style="margin:0 0 12px;color:#555;font-size:13px;">No hay tel\u00e9fono guardado para <strong id="ext-modal-name"></strong>.<br>Ingres\u00e1 el n\u00famero con c\u00f3digo de pa\u00eds (ej: 5493624123456).</p>' +
+      '<p style="margin:0 0 12px;opacity:0.7;font-size:13px;">No hay tel\u00e9fono guardado para <strong id="ext-modal-name"></strong>.<br>Ingres\u00e1 el n\u00famero con c\u00f3digo de pa\u00eds (ej: 5493624123456).</p>' +
       '<input id="ext-modal-phone" type="tel" placeholder="5493624XXXXXX" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px;font-size:14px;box-sizing:border-box;margin-bottom:14px;">' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
       '<button type="button" id="ext-modal-cancel" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;">Cancelar</button>' +
       '<button type="button" id="ext-modal-confirm" style="background:#25d366;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-weight:700;cursor:pointer;">Guardar y enviar</button>' +
       "</div></div>";
     document.body.appendChild(modal);
+    refreshModalCardsTheme();
 
     document
       .getElementById("ext-modal-cancel")
@@ -416,9 +504,6 @@
   // ─── Favoritos en vertramites ─────────────────────────────────────────────────
 
   function initVertramites() {
-    // Guard: evitar inyectar el botón dos veces si se llama más de una vez.
-    if (document.getElementById("ext-fav-btn")) return;
-
     const titleEl = document.getElementById("TEXTBLOCKTITLE_MPAGE");
     if (!titleEl) return;
     // No almacenar `expediente` ni `aeNumber` en el closure: el DOM puede
@@ -430,32 +515,81 @@
       return { expediente: raw, aeNumber: aeMatch ? aeMatch[1] : "" };
     }
 
+    // Refleja en el bot\u00F3n si el expediente actualmente mostrado ya est\u00E1
+    // guardado en favoritos, consultando storage cada vez porque el
+    // usuario puede navegar entre tr\u00E1mites sin recargar la p\u00E1gina.
+    function updateFavButtonState(btn) {
+      const info = readExpedienteAndAe();
+      chrome.storage.local.get("favorites", function (data) {
+        const favs = data.favorites || [];
+        const isFav = favs.some(function (f) {
+          return f.expediente === info.expediente;
+        });
+        if (isFav) {
+          btn.textContent = "\u2705 En favoritos";
+          btn.style.background = "#28a745";
+          btn.title = "Ya est\u00E1 en tus favoritos";
+        } else {
+          btn.textContent = "\u2B50 Favorito";
+          btn.style.background = "#f0a500";
+          btn.title = "Agregar a favoritos";
+        }
+      });
+    }
+
+    // Guard: si el bot\u00F3n ya fue inyectado (navegaci\u00F3n AJAX a otro tr\u00E1mite
+    // dentro de la misma p\u00E1gina), s\u00F3lo refrescar su estado de favorito.
+    const existingBtn = document.getElementById("ext-fav-btn");
+    if (existingBtn) {
+      updateFavButtonState(existingBtn);
+      return;
+    }
+
     const btn = document.createElement("button");
     btn.type = "button";
     btn.id = "ext-fav-btn";
-    btn.title = "Agregar a favoritos";
-    btn.textContent = "\u2B50 Favorito";
     btn.style.cssText =
       "margin-left:12px;background:#f0a500;color:#fff;border:none;border-radius:4px;" +
       "padding:3px 10px;font-size:13px;font-weight:600;cursor:pointer;vertical-align:middle;";
     titleEl.parentNode.insertBefore(btn, titleEl.nextSibling);
+    updateFavButtonState(btn);
+
+    // Re-evaluar el estado del check cuando el t\u00EDtulo cambia (navegaci\u00F3n
+    // AJAX entre tr\u00E1mites sin recarga completa de la p\u00E1gina).
+    const titleObserver = new MutationObserver(function () {
+      updateFavButtonState(btn);
+    });
+    titleObserver.observe(titleEl, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
 
     // Modal de observaciones
     const overlay = document.createElement("div");
+    overlay.id = "ext-fav-overlay";
+    overlay.className = "ext-modal-overlay";
     overlay.style.cssText =
       "display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);" +
       "align-items:center;justify-content:center;";
+    const favCardBaseStyle =
+      "border-radius:8px;padding:24px;min-width:340px;box-shadow:0 4px 24px rgba(0,0,0,0.25);";
     overlay.innerHTML =
-      '<div style="background:#fff;border-radius:8px;padding:24px;min-width:340px;box-shadow:0 4px 24px rgba(0,0,0,0.25);">' +
+      '<div class="ext-modal-card" data-base-style="' +
+      favCardBaseStyle +
+      '" style="' +
+      favCardBaseStyle +
+      '">' +
       '<h5 style="margin:0 0 8px;font-size:16px;">\u2B50 Agregar a favoritos</h5>' +
-      '<p id="ext-fav-exp-line" style="margin:0 0 6px;font-size:13px;color:#555;">Expediente: <strong id="ext-fav-exp"></strong></p>' +
-      '<p id="ext-fav-ae-line" style="margin:0 0 8px;font-size:12px;color:#666;display:none;">Nro AE: <strong id="ext-fav-ae"></strong></p>' +
+      '<p id="ext-fav-exp-line" style="margin:0 0 6px;font-size:13px;opacity:0.7;">Expediente: <strong id="ext-fav-exp"></strong></p>' +
+      '<p id="ext-fav-ae-line" style="margin:0 0 8px;font-size:12px;opacity:0.6;display:none;">Nro AE: <strong id="ext-fav-ae"></strong></p>' +
       '<textarea id="ext-fav-obs" rows="3" placeholder="Observaciones (opcional)" style="width:100%;border:1px solid #ccc;border-radius:4px;padding:8px;font-size:13px;box-sizing:border-box;resize:vertical;margin-bottom:14px;"></textarea>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
       '<button type="button" id="ext-fav-cancel" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;">Cancelar</button>' +
       '<button type="button" id="ext-fav-save" style="background:#f0a500;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-weight:700;cursor:pointer;">Guardar</button>' +
       "</div></div>";
     document.body.appendChild(overlay);
+    refreshModalCardsTheme();
 
     btn.addEventListener("click", function () {
       // Leer expediente y AE en el momento de abrir el modal para evitar
@@ -500,12 +634,7 @@
           await chrome.storage.local.set({ favorites: favs });
         }
         overlay.style.display = "none";
-        btn.textContent = "\u2B50 Guardado";
-        btn.style.background = "#28a745";
-        setTimeout(function () {
-          btn.textContent = "\u2B50 Favorito";
-          btn.style.background = "#f0a500";
-        }, 2000);
+        updateFavButtonState(btn);
       });
   }
 
@@ -570,15 +699,28 @@
 
   // ─── Bootstrap ───────────────────────────────────────────────────────────────
 
+  // El botón de favoritos sólo debe existir en com.ecom.vertramites. Si la
+  // app navega (AJAX, sin recarga completa) a otra pantalla, hay que
+  // quitarlo: de lo contrario queda "pegado" en pantallas como
+  // com.ecom.verpartedigital porque el content script no vuelve a correr.
+  function removeVertramitesFavUI() {
+    const btn = document.getElementById("ext-fav-btn");
+    if (btn) btn.remove();
+    const overlay = document.getElementById("ext-fav-overlay");
+    if (overlay) overlay.remove();
+  }
+
   function tryInitForCurrentUrl() {
     if (location.href.includes("com.ecom.reasignartramite")) {
       initReasignar();
     }
-    if (
+    const onVertramites =
       location.hostname === "app.chaco.gob.ar" &&
-      location.pathname === "/tramites/servlet/com.ecom.vertramites"
-    ) {
+      location.pathname === "/tramites/servlet/com.ecom.vertramites";
+    if (onVertramites) {
       initVertramites();
+    } else {
+      removeVertramitesFavUI();
     }
   }
 

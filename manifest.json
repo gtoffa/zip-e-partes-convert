@@ -1,6 +1,6 @@
 {
   "name": "Zip e-partes convert",
-  "version": "1.2",
+  "version": "2.0",
   "manifest_version": 3,
   "description": "Convertidor de e-partes comprimidas en zip",
   "icons": {
@@ -12,8 +12,7 @@
   "default_locale": "en",
   "host_permissions": [
     "file:///*/*",
-    "https://app.chaco.gob.ar/*",
-    "https://gobiernodigital.chaco.gob.ar/*"
+    "https://app.chaco.gob.ar/tramites/*"
   ],
   "permissions": [
     "downloads",
@@ -25,7 +24,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://app.chaco.gob.ar/*"
+        "https://app.chaco.gob.ar/tramites/*"
       ],
       "js": [
         "assets/js/content.js"

@@ -9,6 +9,33 @@ const APP_BASE_URL = "https://app.chaco.gob.ar/tramites/servlet/";
 const MAIN_PAGE_URL = APP_BASE_URL + "com.ecom.tramiteprincipal";
 const SYNC_ERROR_NOTIFY_COOLDOWN_MS = 10 * 60 * 1000;
 
+// Páginas de alta de trámite: mientras el usuario las tenga abiertas no se
+// debe recargar la pestaña (perdería el formulario en curso), sin importar
+// el tiempo de inactividad.
+const NO_RELOAD_SERVLETS = [
+  "com.ecom.altapartedigital",
+  "com.ecom.altaacumuladoelec",
+  "com.ecom.altaplantilla",
+  "com.ecom.altaeparterepositorio",
+];
+
+function isCreatingTramite(url) {
+  return NO_RELOAD_SERVLETS.some((servlet) => (url || "").includes(servlet));
+}
+
+// pendingUrl / inGestionUrl contienen un token de sesión vigente en el query
+// string. Se guardan en chrome.storage.session (memoria, se borra al cerrar
+// el navegador) en lugar de storage.local, para no dejar tokens de sesión
+// persistidos en disco ante una eventual auditoría de seguridad.
+// setAccessLevel debe llamarse en cada arranque del service worker: no persiste.
+try {
+  chrome.storage.session.setAccessLevel({
+    accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS",
+  });
+} catch (e) {
+  console.warn("[pendiente] No se pudo configurar storage.session:", e);
+}
+
 function extractPendingCount(text) {
   const match = (text || "").match(/\((\d+)\)/);
   return match ? parseInt(match[1], 10) : 0;
@@ -62,7 +89,7 @@ async function checkPendingFromBackground() {
   try {
     // Preferir la URL guardada (con token actual) y hacer fallback a la URL
     // base si el token ya venció o la respuesta no contiene el menú esperado.
-    const stored = await chrome.storage.local.get("pendingUrl");
+    const stored = await chrome.storage.session.get("pendingUrl");
     const candidateUrl = stored.pendingUrl || MAIN_PAGE_URL;
 
     async function fetchHtml(url) {
@@ -93,7 +120,7 @@ async function checkPendingFromBackground() {
       html.match(/id="3"[^>]*href="([^"]+)"/) ||
       html.match(/href="([^"]+)"[^>]*id="3"/);
     if (hrefMatch && hrefMatch[1]) {
-      await chrome.storage.local.set({
+      await chrome.storage.session.set({
         pendingUrl: APP_BASE_URL + hrefMatch[1],
       });
     }
@@ -103,7 +130,7 @@ async function checkPendingFromBackground() {
       html.match(/id="4"[^>]*href="([^"]+)"/) ||
       html.match(/href="([^"]+)"[^>]*id="4"/);
     if (inGestionHrefMatch && inGestionHrefMatch[1]) {
-      await chrome.storage.local.set({
+      await chrome.storage.session.set({
         inGestionUrl: APP_BASE_URL + inGestionHrefMatch[1],
         pendingUrl: APP_BASE_URL + inGestionHrefMatch[1],
       });
@@ -156,6 +183,11 @@ async function markSyncSuccess() {
   await chrome.storage.local.set({
     syncError: false,
     syncFailureCount: 0,
+    // Marca que en algún momento se pudo leer pendientes correctamente. El
+    // aviso "Inicia sesión en SGT" sólo tiene sentido si esto ya pasó al
+    // menos una vez (se abrió el sitio o se cerró la pestaña); si nunca se
+    // abrió el sitio en esta instalación, no corresponde mostrarlo.
+    hasEverConnected: true,
   });
 }
 
@@ -164,12 +196,14 @@ async function markSyncFailure() {
   const data = await chrome.storage.local.get([
     "syncFailureCount",
     "lastSyncErrorNotificationAt",
+    "hasEverConnected",
   ]);
   const syncFailureCount = Number(data.syncFailureCount || 0) + 1;
   const lastNotifAt = Number(data.lastSyncErrorNotificationAt || 0);
   const shouldNotify =
-    syncFailureCount === 1 ||
-    now - lastNotifAt >= SYNC_ERROR_NOTIFY_COOLDOWN_MS;
+    !!data.hasEverConnected &&
+    (syncFailureCount === 1 ||
+      now - lastNotifAt >= SYNC_ERROR_NOTIFY_COOLDOWN_MS);
 
   const payload = {
     syncError: true,
@@ -225,12 +259,12 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         await handleInGestionCount(status.inGestionCount);
       }
       if (status.href) {
-        await chrome.storage.local.set({
+        await chrome.storage.session.set({
           pendingUrl: APP_BASE_URL + status.href,
         });
       }
       if (status.inGestionHref) {
-        await chrome.storage.local.set({
+        await chrome.storage.session.set({
           inGestionUrl: APP_BASE_URL + status.inGestionHref,
           pendingUrl: APP_BASE_URL + status.inGestionHref,
         });
@@ -248,7 +282,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         const MIN_RELOAD_MS = 5 * 60 * 1000; // 5 minutos
         if (
           elapsedSinceReload >= MIN_RELOAD_MS &&
-          (!hasFocus || idleMs >= MIN_RELOAD_MS)
+          (!hasFocus || idleMs >= MIN_RELOAD_MS) &&
+          !isCreatingTramite(tab.url)
         ) {
           try {
             chrome.tabs.reload(tab.id);
@@ -301,6 +336,13 @@ chrome.runtime.onStartup.addListener(async () => {
 
 chrome.runtime.onInstalled.addListener(syncMonitorAlarm);
 
+// Abrir la presentación de novedades/funciones al instalar o actualizar.
+chrome.runtime.onInstalled.addListener(function (details) {
+  if (details.reason === "install" || details.reason === "update") {
+    chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
+  }
+});
+
 // ─── Mensajes ─────────────────────────────────────────────────────────────────
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -310,13 +352,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === "pendingCount") {
     // Actualizar también la URL con token cuando el content script la reporta
     if (request.href) {
-      chrome.storage.local.set({ pendingUrl: APP_BASE_URL + request.href });
+      chrome.storage.session.set({ pendingUrl: APP_BASE_URL + request.href });
     }
     handlePendingCount(request.count);
   }
   if (request.type === "inGestionCount") {
     if (request.href) {
-      chrome.storage.local.set({
+      chrome.storage.session.set({
         inGestionUrl: APP_BASE_URL + request.href,
         pendingUrl: APP_BASE_URL + request.href,
       });
@@ -367,7 +409,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 chrome.notifications.onClicked.addListener(async (notificationId) => {
   if (!notificationId.startsWith("pending-")) return;
   // Usar la URL guardada con token o la base como fallback
-  const stored = await chrome.storage.local.get("pendingUrl");
+  const stored = await chrome.storage.session.get("pendingUrl");
   const targetUrl = stored.pendingUrl || MAIN_PAGE_URL;
   const tabs = await chrome.tabs.query({ url: APP_BASE_URL + "*" });
   if (tabs.length > 0) {

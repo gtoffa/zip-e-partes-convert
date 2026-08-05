@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Zip e-partes convert — Novedades</title>
+  <link rel="icon" href="assets/img/icon19.png">
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #212529;
+      --muted: #5b6670;
+      --border: #e3e7ea;
+      --header-bg: #1c2529;
+      --header-text: #f4f6f8;
+      --shadow: rgba(20, 30, 40, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #171f24;
+        --card-bg: #222c32;
+        --text: #e6e9ec;
+        --muted: #9aa7b0;
+        --border: #33414a;
+        --header-bg: #10171b;
+        --header-text: #f4f6f8;
+        --shadow: rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 40px 24px 56px;
+      text-align: center;
+    }
+
+    header img {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    header h1 {
+      margin: 16px 0 4px;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    header p {
+      margin: 0;
+      color: #b7c2c9;
+      font-size: 14px;
+    }
+
+    .version-badge {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 12px;
+      letter-spacing: 0.4px;
+      color: #d8dfe3;
+    }
+
+    main {
+      max-width: 900px;
+      margin: -32px auto 0;
+      padding: 0 20px 48px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 6px 20px var(--shadow);
+      border-top: 3px solid var(--accent, #7ab4e8);
+    }
+
+    .card .icon {
+      font-size: 26px;
+      line-height: 1;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .card p+p {
+      margin-top: 6px;
+    }
+
+    .section-title {
+      margin: 40px 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+    }
+
+    .note {
+      margin-top: 32px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px dashed var(--border);
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    footer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 48px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    button#btn-close {
+      background: #2a5f6e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button#btn-close:hover {
+      background: #326f80;
+    }
+
+    .permission-alert {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: var(--card-bg);
+      border: 1px solid #a86a2a;
+      border-left: 4px solid #e0972e;
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 6px 20px var(--shadow);
+    }
+
+    .permission-alert .icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .permission-alert h3 {
+      margin: 0 0 6px;
+      font-size: 15px;
+    }
+
+    .permission-alert p {
+      margin: 0 0 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .permission-alert button {
+      background: #e0972e;
+      color: #241a06;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .permission-alert button:hover {
+      background: #eaa845;
+    }
+
+    .permission-ok {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid #2fa86b;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .permissions-list {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .permissions-list b {
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <img src="assets/img/icon128.png" alt="Zip e-partes convert">
+    <h1>Zip e-partes convert</h1>
+    <p>Extensión para trabajar con el sistema SGT (app.chaco.gob.ar/tramites)</p>
+    <span class="version-badge" id="version-badge">versión —</span>
+  </header>
+
+  <main>
+    <div class="section-title">Antes de empezar</div>
+
+    <div class="permission-alert" id="perm-alert" style="display:none;">
+      <span class="icon">🔐</span>
+      <div>
+        <h3>Falta habilitar acceso a archivos locales</h3>
+        <p>La conversión del ZIP de e-partes a PDF necesita leer el archivo que Chrome ya descargó a tu disco. Por
+          seguridad, Chrome no deja que ninguna extensión lea archivos locales hasta que lo habilités vos mismo, una
+          sola vez.</p>
+        <button type="button" id="btn-enable-file-access">Ir a habilitarlo</button>
+      </div>
+    </div>
+
+    <div class="permission-ok" id="perm-ok" style="display:none;">
+      <span class="icon">✅</span>
+      <span>Acceso a archivos locales habilitado. La conversión a PDF puede funcionar sin problemas.</span>
+    </div>
+
+    <div class="permissions-list">
+      <b>¿Para qué pide permisos esta extensión?</b><br><br>
+      <b>Acceso a archivos (file:///)</b> — para leer el ZIP que Chrome descarga y convertirlo a PDF. Es el único
+      permiso que tenés que habilitar manualmente (ver arriba si falta).<br>
+      <b>app.chaco.gob.ar/tramites/*</b> — para poder mostrar sus funciones (modo oscuro, favoritos, aviso de
+      pendientes, etc.) dentro del sistema SGT. Se concede automáticamente al instalar, no requiere ninguna acción
+      tuya. No se pide acceso a ningún otro sitio.<br>
+      <b>Descargas, notificaciones, pestañas, almacenamiento y alarmas</b> — permisos estándar de Chrome que usa la
+      extensión para detectar la descarga del ZIP, avisarte los pendientes nuevos, abrir/enfocar pestañas de SGT o
+      WhatsApp, y guardar tu configuración, contactos y favoritos.
+    </div>
+
+    <div class="section-title">Descargas y conversión</div>
+    <div class="grid">
+      <div class="card" style="--accent:#3d8bff;">
+        <span class="icon">📦</span>
+        <h3>ZIP de e-partes → PDF</h3>
+        <p>Detecta la descarga del ZIP de e-partes y lo convierte a PDF automáticamente, listo para abrir o guardar.</p>
+      </div>
+      <div class="card" style="--accent:#3d8bff;">
+        <span class="icon">👁️</span>
+        <h3>Previsualización</h3>
+        <p>Vista previa del PDF generado sin salir del navegador, antes de guardarlo en tu equipo.</p>
+      </div>
+      <div class="card" style="--accent:#3d8bff;">
+        <span class="icon">🔔</span>
+        <h3>Ícono de progreso</h3>
+        <p>El ícono de la extensión refleja el estado de la descarga/conversión en curso.</p>
+      </div>
+    </div>
+
+    <div class="section-title">Trámites pendientes</div>
+    <div class="grid">
+      <div class="card" style="--accent:#7ab4e8;">
+        <span class="icon">📬</span>
+        <h3>Aviso de pendientes nuevos</h3>
+        <p>Si activás "Notificar trámites pendientes" en Configuración, te avisa con una notificación del navegador
+          cuando aparecen trámites nuevos en tu bandeja de <em>Pendientes</em>, sin tener que estar mirando la
+          pestaña.</p>
+        <p>Importante: mientras esté activa, la sesión de SGT no expira hasta que cerrás la ventana donde está
+          abierto.</p>
+      </div>
+    </div>
+
+    <div class="section-title">Favoritos</div>
+    <div class="grid">
+      <div class="card" style="--accent:#f0a500;">
+        <span class="icon">⭐</span>
+        <h3>Guardar trámites</h3>
+        <p>Desde la pantalla de un trámite (Ver Trámite) podés marcarlo como favorito, con una observación opcional,
+          para encontrarlo rápido después.</p>
+      </div>
+      <div class="card" style="--accent:#f0a500;">
+        <span class="icon">🔎</span>
+        <h3>Acceso directo</h3>
+        <p>Desde la pestaña Favoritos de la extensión, un clic te lleva a SGT y completa ahí la búsqueda del trámite
+          por vos.</p>
+      </div>
+    </div>
+
+    <div class="section-title">Contactos de WhatsApp</div>
+    <div class="grid">
+      <div class="card" style="--accent:#25d366;">
+        <span class="icon">📱</span>
+        <h3>Avisar al reasignar</h3>
+        <p>Al reasignar un trámite a un agente, un botón te permite notificarle por WhatsApp que le llegó un trámite
+          nuevo.</p>
+      </div>
+      <div class="card" style="--accent:#25d366;">
+        <span class="icon">📇</span>
+        <h3>Agenda propia</h3>
+        <p>Guardá el nombre y teléfono de tus contactos una vez; la extensión los recuerda para la próxima
+          reasignación.</p>
+      </div>
+    </div>
+
+    <div class="section-title">Configuración</div>
+    <div class="grid">
+      <div class="card" style="--accent:#2a5f6e;">
+        <span class="icon">🌙</span>
+        <h3>Modo oscuro</h3>
+        <p>Aplica un tema oscuro a todo el sitio de SGT, incluyendo menú, tablas, formularios y combos.</p>
+      </div>
+      <div class="card" style="--accent:#2a5f6e;">
+        <span class="icon">💾</span>
+        <h3>Exportar / Importar</h3>
+        <p>Hacé una copia de tu configuración, contactos y favoritos, y restaurala fácilmente si reinstalás la
+          extensión.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      Podés volver a ver esta pantalla cuando quieras desde <strong>Configuración → Ver novedades</strong> en el popup
+      de la extensión.
+    </div>
+  </main>
+
+  <footer>
+    <button id="btn-close" type="button">Entendido, cerrar</button>
+  </footer>
+
+  <script src="assets/js/welcome.js"></script>
+</body>
+
+</html>
