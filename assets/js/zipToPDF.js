@@ -62,7 +62,7 @@ async function mergeAllPDFs(files, filename) {
     }
     document.getElementById("status").innerText = "Preparando la vista previa";
 
-    const base64 = await pdfDoc.saveAsBase64();
+    const pdfBytes = await pdfDoc.save();
 
     try {
       filename = filename.split(".")[0];
@@ -70,13 +70,20 @@ async function mergeAllPDFs(files, filename) {
 
     const pdfFilename = filename + ".pdf";
 
-    // Guardar en storage de sesión y abrir preview.html como pestaña de la extensión.
-    // De esta forma el blob se crea en el contexto correcto y no hay restricciones de origen.
-    await chrome.storage.session.set({
-      pdfPreview: { base64: base64, filename: pdfFilename },
+    // Guardar en IndexedDB (sin el límite de 10MB de chrome.storage.session)
+    // y abrir preview.html como pestaña de la extensión para crear el blob
+    // en el contexto correcto y sin restricciones de origen.
+    const id = await savePdfForPreview(pdfBytes, pdfFilename);
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("preview.html") + "?id=" + encodeURIComponent(id),
     });
-    chrome.tabs.create({ url: chrome.runtime.getURL("preview.html") });
-  } catch (error) {}
-
-  console.log("listo");
+  } catch (error) {
+    console.error("Error al generar el PDF:", error);
+    document.getElementById("convertp").style.display = "none";
+    document.getElementById("items").style.display = "";
+    alert(
+      "No se pudo generar el PDF: " +
+        (error && error.message ? error.message : error),
+    );
+  }
 }

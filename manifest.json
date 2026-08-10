@@ -1,6 +1,6 @@
 {
   "name": "Zip e-partes convert",
-  "version": "2.0",
+  "version": "2.0.1",
   "manifest_version": 3,
   "description": "Convertidor de e-partes comprimidas en zip",
   "icons": {

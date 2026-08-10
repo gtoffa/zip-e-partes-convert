@@ -729,6 +729,8 @@ if (chrome.downloads) {
     chrome.storage.local.get(["notifyPending", "darkMode"], function (data) {
       refreshConfigTab(data);
     });
+    document.getElementById("ext-version").textContent =
+      "Versión " + chrome.runtime.getManifest().version;
     toggle.addEventListener("change", function () {
       chrome.storage.local.set({ notifyPending: toggle.checked });
       notifyPendingInfo.style.display = toggle.checked ? "block" : "none";
@@ -951,5 +953,5 @@ if (chrome.downloads) {
 }
 
 try {
-  chrome.runtime.sendMessage({ message: "seticon" }, function (response) {});
+  chrome.runtime.sendMessage({ message: "seticon" });
 } catch (error) {}

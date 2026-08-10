@@ -1,18 +1,14 @@
 (async function () {
-  const data = await chrome.storage.session.get("pdfPreview");
-  if (!data.pdfPreview) {
+  const id = new URLSearchParams(location.search).get("id");
+  const record = id ? await loadAndRemovePdfPreview(id) : null;
+  if (!record) {
     document.getElementById("titulo").textContent =
       "Error: no se encontraron datos del PDF.";
     return;
   }
 
-  const { base64, filename } = data.pdfPreview;
-  await chrome.storage.session.remove("pdfPreview");
-
-  const binStr = atob(base64);
-  const arr = new Uint8Array(binStr.length);
-  for (let i = 0; i < binStr.length; i++) arr[i] = binStr.charCodeAt(i);
-  const blob = new Blob([arr], { type: "application/pdf" });
+  const { bytes, filename } = record;
+  const blob = new Blob([bytes], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
 
   const nameWithoutExt = filename.replace(/\.pdf$/i, "");
